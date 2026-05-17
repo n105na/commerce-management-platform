@@ -3,6 +3,11 @@ from django.db import models
 from products.models import Product
 from users.models import User
 
+
+# ==========================================
+# CUSTOMER
+# ==========================================
+
 class Customer(models.Model):
 
     user = models.OneToOneField(
@@ -32,13 +37,22 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.full_name
-    
+
+
+# ==========================================
+# ORDER
+# ==========================================
+
 class Order(models.Model):
 
     class Status(models.TextChoices):
+
         PENDING = 'PENDING', 'Pending'
+
         COMPLETED = 'COMPLETED', 'Completed'
+
         CANCELLED = 'CANCELLED', 'Cancelled'
+
 
     customer = models.ForeignKey(
         Customer,
@@ -79,9 +93,14 @@ class Order(models.Model):
     )
 
     def remaining_amount(self):
-        return self.total_amount - self.paid_amount
+
+        return (
+            self.total_amount -
+            self.paid_amount
+        )
 
     def __str__(self):
+
         return f'Order #{self.id}'
     
 class OrderItem(models.Model):
@@ -114,14 +133,17 @@ class OrderItem(models.Model):
 
     def save(self, *args, **kwargs):
 
-        self.subtotal = self.quantity * self.unit_price
+        self.subtotal = (
+            self.quantity *
+            self.unit_price
+        )
 
         super().save(*args, **kwargs)
 
     def __str__(self):
+
         return self.product.name
-
-
+    
 class CustomerPayment(models.Model):
 
     customer = models.ForeignKey(
@@ -152,4 +174,8 @@ class CustomerPayment(models.Model):
     )
 
     def __str__(self):
-        return f'{self.customer.full_name} - {self.amount}'
+
+        return (
+            f'{self.customer.full_name} - '
+            f'{self.amount}'
+        )

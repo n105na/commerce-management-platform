@@ -1,3 +1,20 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from .models import StoreSettings
+
+from .serializers import (
+    StoreSettingsSerializer
+)
+
+
+class StoreSettingsViewSet(
+    viewsets.ModelViewSet
+):
+
+    queryset = StoreSettings.objects.all()
+
+    serializer_class = (
+        StoreSettingsSerializer
+    )
+
+    permission_classes = []

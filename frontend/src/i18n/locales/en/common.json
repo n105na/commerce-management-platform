@@ -1,0 +1,11 @@
+{
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "inventory": "Inventory",
+    "sales": "Sales",
+    "customers": "Customers",
+    "finance": "Finance",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout"
+}

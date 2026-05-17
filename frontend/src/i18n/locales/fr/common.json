@@ -1,0 +1,11 @@
+{
+    "dashboard": "Tableau de bord",
+    "products": "Produits",
+    "inventory": "Inventaire",
+    "sales": "Ventes",
+    "customers": "Clients",
+    "finance": "Finance",
+    "reports": "Rapports",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+}

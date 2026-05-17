@@ -1,0 +1,253 @@
+import {
+    useState,
+} from 'react'
+
+import {
+    useNavigate,
+} from 'react-router-dom'
+
+import {
+    ShoppingBag,
+} from 'lucide-react'
+
+import {
+    useAuth,
+} from '../contexts/AuthContext'
+
+import Card from '../components/ui/Card'
+
+import Button from '../components/ui/Button'
+
+import Input from '../components/ui/Input'
+
+
+export default function LoginPage() {
+
+    const navigate = useNavigate()
+
+    const { login } = useAuth()
+
+
+    const [formData, setFormData] = useState({
+
+        username: '',
+        password: '',
+    })
+
+
+    const [error, setError] = useState('')
+
+
+    async function handleSubmit(e) {
+
+        e.preventDefault()
+
+        try {
+
+            setError('')
+
+            await login(
+                formData.username,
+                formData.password
+            )
+
+            navigate('/')
+
+        } catch {
+
+            setError(
+                'Invalid credentials'
+            )
+        }
+    }
+
+
+    return (
+
+        <div
+            className="
+                min-h-screen
+                flex
+                items-center
+                justify-center
+                px-4
+                bg-zinc-50
+                dark:bg-zinc-950
+            "
+        >
+
+            <Card
+                className="
+                    w-full
+                    max-w-md
+                    p-8
+                "
+            >
+
+                {/* LOGO */}
+
+                <div className="flex flex-col items-center text-center mb-8">
+
+                    <div
+                        className="
+                            w-16
+                            h-16
+                            rounded-3xl
+                            bg-zinc-900
+                            dark:bg-white
+                            flex
+                            items-center
+                            justify-center
+                            mb-4
+                        "
+                    >
+
+                        <ShoppingBag
+                            className="
+                                text-white
+                                dark:text-black
+                            "
+                            size={28}
+                        />
+
+                    </div>
+
+
+                    <h1
+                        className="
+                            text-4xl
+                            font-bold
+                            tracking-tight
+                            dark:text-white
+                        "
+                    >
+
+                        CommerceOS
+
+                    </h1>
+
+                    <p className="text-zinc-500 mt-2">
+
+                        Sign in to manage your business
+
+                    </p>
+
+                </div>
+
+
+                {/* ERROR */}
+
+                {error && (
+
+                    <div
+                        className="
+                            mb-6
+                            p-4
+                            rounded-2xl
+                            bg-red-100
+                            dark:bg-red-900/30
+                            text-red-600
+                        "
+                    >
+
+                        {error}
+
+                    </div>
+                )}
+
+
+                {/* FORM */}
+
+                <form
+                    onSubmit={handleSubmit}
+
+                    className="space-y-5"
+                >
+
+                    {/* USERNAME */}
+
+                    <div className="space-y-2">
+
+                        <label
+                            className="
+                                text-sm
+                                font-medium
+                                dark:text-white
+                            "
+                        >
+
+                            Username
+
+                        </label>
+
+                        <Input
+                            type="text"
+
+                            placeholder="Enter username"
+
+                            value={formData.username}
+
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                })
+                            }
+                        />
+
+                    </div>
+
+
+                    {/* PASSWORD */}
+
+                    <div className="space-y-2">
+
+                        <label
+                            className="
+                                text-sm
+                                font-medium
+                                dark:text-white
+                            "
+                        >
+
+                            Password
+
+                        </label>
+
+                        <Input
+                            type="password"
+
+                            placeholder="Enter password"
+
+                            value={formData.password}
+
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    password: e.target.value,
+                                })
+                            }
+                        />
+
+                    </div>
+
+
+                    {/* SUBMIT */}
+
+                    <Button
+                        type="submit"
+
+                        className="w-full"
+                    >
+
+                        Login
+
+                    </Button>
+
+                </form>
+
+            </Card>
+
+        </div>
+    )
+}
