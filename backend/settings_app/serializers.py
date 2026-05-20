@@ -1,13 +1,15 @@
 from rest_framework import serializers
 
-from .models import StoreSettings
+from .models import PlatformSettings
 
 
-class StoreSettingsSerializer(
+class PlatformSettingsSerializer(
+
     serializers.ModelSerializer
 ):
 
     class Meta:
-        model = StoreSettings
+
+        model = PlatformSettings
 
         fields = '__all__'

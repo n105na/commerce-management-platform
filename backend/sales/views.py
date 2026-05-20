@@ -1,4 +1,7 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
+
+from rest_framework.response import Response
 
 from .models import (
     Customer,
@@ -13,6 +16,8 @@ from .serializers import (
     OrderItemSerializer,
     CustomerPaymentSerializer,
 )
+
+
 class CustomerViewSet(viewsets.ModelViewSet):
 
     queryset = Customer.objects.all()
@@ -20,6 +25,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
 
     permission_classes = []
+
 
 class OrderViewSet(viewsets.ModelViewSet):
 
@@ -40,17 +46,49 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer
     ):
 
-        order = serializer.save(
+        serializer.save(
             created_by=self.request.user
         )
 
+
+    @action(
+        detail=True,
+        methods=['post']
+    )
+    def cancel(self, request, pk=None):
+
+        order = self.get_object()
+
+        if (
+            order.status ==
+            Order.Status.CANCELLED
+        ):
+
+            return Response({
+
+                'detail':
+                    'Order already cancelled'
+            })
+
+
         from .services import (
-            reduce_stock_after_order
+            restore_stock_after_cancel
         )
 
-        reduce_stock_after_order(order)
+        restore_stock_after_cancel(order)
 
-        
+        order.status = (
+            Order.Status.CANCELLED
+        )
+
+        order.save()
+
+        return Response({
+
+            'detail':
+                'Order cancelled successfully'
+        })
+
 class OrderItemViewSet(viewsets.ModelViewSet):
 
     queryset = OrderItem.objects.select_related(
@@ -62,6 +100,24 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
     permission_classes = []
 
+
+    def perform_create(
+        self,
+        serializer
+    ):
+
+        order_item =serializer.save()
+
+
+        from .services import (
+            reduce_stock_after_order
+        )
+
+        reduce_stock_after_order(
+            order_item.order
+        )
+
+
 class CustomerPaymentViewSet(viewsets.ModelViewSet):
 
     queryset = CustomerPayment.objects.select_related(
@@ -72,4 +128,3 @@ class CustomerPaymentViewSet(viewsets.ModelViewSet):
     serializer_class = CustomerPaymentSerializer
 
     permission_classes = []
-

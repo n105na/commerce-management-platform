@@ -7,5 +7,21 @@
     "finance": "Finance",
     "reports": "Rapports",
     "settings": "Paramètres",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+  "welcome_back": "Bon retour",
+  "business_platform": "Plateforme Business",
+  "business_management_platform": "Plateforme de gestion commerciale",
+  "sign_in_manage_business": "Connectez-vous pour gérer votre entreprise",
+  "appearance": "Apparence",
+  "language": "Langue",
+  "business_settings": "Paramètres de l'entreprise",
+  "store_name": "Nom du magasin",
+  "business_email": "Email professionnel",
+  "currency": "Devise",
+  "timezone": "Fuseau horaire",
+  "store_logo": "Logo du magasin",
+  "save_settings": "Enregistrer les paramètres",
+  "light_mode": "Mode clair",
+  "dark_mode": "Mode sombre"
+
 }

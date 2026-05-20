@@ -1,26 +1,16 @@
 from django.db import models
 
 
-class StoreSettings(models.Model):
+class PlatformSettings(models.Model):
 
     store_name = models.CharField(
-        max_length=255
+        max_length=255,
+        default='Commerce Platform'
     )
 
-    logo = models.ImageField(
-        upload_to='branding/',
+    business_email = models.EmailField(
         blank=True,
         null=True
-    )
-
-    primary_color = models.CharField(
-        max_length=20,
-        default='#000000'
-    )
-
-    secondary_color = models.CharField(
-        max_length=20,
-        default='#ffffff'
     )
 
     currency = models.CharField(
@@ -28,29 +18,22 @@ class StoreSettings(models.Model):
         default='EUR'
     )
 
-    language = models.CharField(
-        max_length=10,
-        default='en'
+    timezone = models.CharField(
+        max_length=100,
+        default='Europe/Paris'
     )
 
-    dark_mode_enabled = models.BooleanField(
-        default=True
+    logo = models.ImageField(
+        upload_to='settings/',
+        blank=True,
+        null=True
     )
-
-    contact_phone = models.CharField(
-        max_length=20,
-        blank=True
-    )
-
-    contact_email = models.EmailField(
-        blank=True
-    )
-
-    address = models.TextField(blank=True)
 
     updated_at = models.DateTimeField(
         auto_now=True
     )
 
+
     def __str__(self):
-        return self.store_name
+
+        return 'Platform Settings'

@@ -5,15 +5,11 @@ from inventory.models import (
     StockMovement,
 )
 
-from inventory.models import Supplier
-
-from .models import (
-    Order,
-)
+from .models import Order
 
 
 # ==========================================
-# UPDATE INVENTORY AFTER SALE
+# REDUCE STOCK
 # ==========================================
 
 @transaction.atomic
@@ -27,11 +23,20 @@ def reduce_stock_after_order(order):
             )
         )
 
+        if inventory_item.quantity < item.quantity:
+
+            raise ValueError(
+
+                f'Not enough stock for '
+                f'{item.product.name}'
+            )
+
         inventory_item.quantity -= item.quantity
 
         inventory_item.save()
 
         StockMovement.objects.create(
+
             product=item.product,
 
             movement_type='OUT',
@@ -41,5 +46,39 @@ def reduce_stock_after_order(order):
             notes=(
                 f'Automatic reduction '
                 f'from Order #{order.id}'
+            ),
+        )
+
+
+# ==========================================
+# RESTORE STOCK
+# ==========================================
+
+@transaction.atomic
+def restore_stock_after_cancel(order):
+
+    for item in order.items.all():
+
+        inventory_item = (
+            InventoryItem.objects.get(
+                product=item.product
+            )
+        )
+
+        inventory_item.quantity += item.quantity
+
+        inventory_item.save()
+
+        StockMovement.objects.create(
+
+            product=item.product,
+
+            movement_type='IN',
+
+            quantity=item.quantity,
+
+            notes=(
+                f'Restored stock from '
+                f'cancelled Order #{order.id}'
             ),
         )

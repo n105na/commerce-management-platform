@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import StoreSettings
+from .models import PlatformSettings
 
 
-admin.site.register(StoreSettings)
+admin.site.register(PlatformSettings)

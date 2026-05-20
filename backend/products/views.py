@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 
 from .models import (
     Category,
@@ -13,9 +12,11 @@ from .serializers import (
     ProductPriceSerializer,
 )
 
+from inventory.models import InventoryItem
+
 
 # ==========================================
-# CATEGORY VIEWSET
+# CATEGORY
 # ==========================================
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -28,7 +29,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 # ==========================================
-# PRODUCT VIEWSET
+# PRODUCT
 # ==========================================
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -44,11 +45,35 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = []
 
 
+    def perform_create(
+        self,
+        serializer
+    ):
+
+        product =serializer.save()
+
+
+        """
+        AUTO CREATE INVENTORY
+        """
+
+        InventoryItem.objects.create(
+
+            product=product,
+
+            quantity=0,
+
+            minimum_quantity=0,
+        )
+
+
 # ==========================================
-# PRODUCT PRICE VIEWSET
+# PRODUCT PRICE
 # ==========================================
 
-class ProductPriceViewSet(viewsets.ModelViewSet):
+class ProductPriceViewSet(
+    viewsets.ModelViewSet
+):
 
     queryset = ProductPrice.objects.select_related(
         'product'

@@ -15,11 +15,16 @@ import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 
 import {
-
     createProduct,
-    getCategories,
-
 } from '../../services/productService'
+
+import {
+    createProductPrice,
+} from '../../services/productPriceService'
+
+import {
+    getCategories,
+} from '../../services/categoryService'
 
 
 export default function ProductModal({
@@ -29,7 +34,8 @@ export default function ProductModal({
 
 }) {
 
-    const queryClient = useQueryClient()
+    const queryClient =
+        useQueryClient()
 
 
     const [formData, setFormData] = useState({
@@ -61,7 +67,78 @@ export default function ProductModal({
 
     const mutation = useMutation({
 
-        mutationFn: createProduct,
+        mutationFn: async () => {
+
+            /*
+            =====================================
+            CREATE PRODUCT
+            =====================================
+            */
+
+            const productPayload =
+                new FormData()
+
+
+            productPayload.append(
+                'name',
+                formData.name
+            )
+
+            productPayload.append(
+                'description',
+                formData.description
+            )
+
+            productPayload.append(
+                'category',
+                String(formData.category)
+            )
+
+            productPayload.append(
+    'is_active',
+    formData.is_active
+)
+
+
+            if (formData.image) {
+
+                productPayload.append(
+                    'image',
+                    formData.image
+                )
+            }
+
+
+            const createdProduct =
+                await createProduct(
+                    productPayload
+                )
+
+
+            /*
+            =====================================
+            CREATE INITIAL PRICE
+            =====================================
+            */
+
+            await createProductPrice({
+
+                product:
+                    createdProduct.id,
+
+                price:
+                    formData.price,
+
+                effective_date:
+                    new Date()
+                        .toISOString()
+                        .split('T')[0],
+            })
+
+
+            return createdProduct
+        },
+
 
         onSuccess: () => {
 
@@ -69,6 +146,23 @@ export default function ProductModal({
 
                 queryKey: ['products'],
             })
+
+            queryClient.invalidateQueries({
+
+                queryKey: ['product-prices'],
+            })
+
+
+            setFormData({
+
+                name: '',
+                description: '',
+                category: '',
+                price: '',
+                image: null,
+                is_active: true,
+            })
+
 
             onClose()
         },
@@ -82,8 +176,8 @@ export default function ProductModal({
             name,
             value,
             type,
-            checked,
             files,
+            checked,
 
         } = e.target
 
@@ -94,11 +188,11 @@ export default function ProductModal({
 
             [name]:
 
-                type === 'checkbox'
-                    ? checked
-
-                    : type === 'file'
+                type === 'file'
                     ? files[0]
+
+                    : type === 'checkbox'
+                    ? checked
 
                     : value,
         })
@@ -109,7 +203,7 @@ export default function ProductModal({
 
         e.preventDefault()
 
-        mutation.mutate(formData)
+        mutation.mutate()
     }
 
 
@@ -120,7 +214,13 @@ export default function ProductModal({
             onClose={onClose}
         >
 
-            <div className="space-y-6">
+            <form
+                onSubmit={handleSubmit}
+
+                className="space-y-5"
+            >
+
+                {/* TITLE */}
 
                 <div>
 
@@ -132,237 +232,242 @@ export default function ProductModal({
                         "
                     >
 
-                        Add Product
+                        Create Product
 
                     </h2>
 
                     <p className="text-zinc-500 mt-2">
 
-                        Create a new product
+                        Add a new product
 
                     </p>
 
                 </div>
 
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="space-y-5"
-                >
+                {/* NAME */}
 
-                    {/* NAME */}
+                <div className="space-y-2">
 
-                    <div className="space-y-2">
+                    <label className="dark:text-white">
 
-                        <label className="dark:text-white">
+                        Product Name
 
-                            Product Name
+                    </label>
 
-                        </label>
+                    <Input
+                        name="name"
 
-                        <Input
-                            name="name"
+                        placeholder="Enter product name"
 
-                            value={formData.name}
+                        value={formData.name}
 
-                            onChange={handleChange}
+                        onChange={handleChange}
+                    />
 
-                            placeholder="Fresh Eggs"
-                        />
+                </div>
 
-                    </div>
 
+                {/* DESCRIPTION */}
 
-                    {/* DESCRIPTION */}
+                <div className="space-y-2">
 
-                    <div className="space-y-2">
+                    <label className="dark:text-white">
 
-                        <label className="dark:text-white">
+                        Description
 
-                            Description
+                    </label>
 
-                        </label>
+                    <textarea
+                        name="description"
 
-                        <textarea
-                            name="description"
+                        rows={4}
 
-                            value={formData.description}
+                        placeholder="Product description"
 
-                            onChange={handleChange}
+                        value={formData.description}
 
-                            rows={4}
+                        onChange={handleChange}
 
-                            className="
-                                w-full
-                                rounded-2xl
-                                border
-                                border-zinc-200
-                                dark:border-zinc-800
-                                bg-white
-                                dark:bg-zinc-900
-                                dark:text-white
-                                px-4
-                                py-3
-                            "
-                        />
+                        className="
+                            w-full
+                            rounded-2xl
+                            border
+                            border-zinc-200
+                            dark:border-zinc-800
+                            bg-white
+                            dark:bg-zinc-900
+                            dark:text-white
+                            px-4
+                            py-3
+                            outline-none
+                        "
+                    />
 
-                    </div>
+                </div>
 
 
-                    {/* CATEGORY */}
+                {/* CATEGORY */}
 
-                    <div className="space-y-2">
+                <div className="space-y-2">
 
-                        <label className="dark:text-white">
+                    <label className="dark:text-white">
 
-                            Category
+                        Category
 
-                        </label>
+                    </label>
 
-                        <select
-                            name="category"
+                    <select
+                        name="category"
 
-                            value={formData.category}
+                        value={formData.category}
 
-                            onChange={handleChange}
+                        onChange={handleChange}
 
-                            className="
-                                w-full
-                                rounded-2xl
-                                border
-                                border-zinc-200
-                                dark:border-zinc-800
-                                bg-white
-                                dark:bg-zinc-900
-                                dark:text-white
-                                px-4
-                                py-3
-                            "
-                        >
-
-                            <option value="">
-
-                                Select category
-
-                            </option>
-
-                            {categories.map((category) => (
-
-                                <option
-                                    key={category.id}
-
-                                    value={category.id}
-                                >
-
-                                    {category.name}
-
-                                </option>
-                            ))}
-
-                        </select>
-
-                    </div>
-
-
-                    {/* PRICE */}
-
-                    <div className="space-y-2">
-
-                        <label className="dark:text-white">
-
-                            Initial Price
-
-                        </label>
-
-                        <Input
-                            type="number"
-
-                            step="0.01"
-
-                            name="price"
-
-                            value={formData.price}
-
-                            onChange={handleChange}
-
-                            placeholder="10.00"
-                        />
-
-                    </div>
-
-
-                    {/* IMAGE */}
-
-                    <div className="space-y-2">
-
-                        <label className="dark:text-white">
-
-                            Product Image
-
-                        </label>
-
-                        <input
-                            type="file"
-
-                            name="image"
-
-                            accept="image/*"
-
-                            onChange={handleChange}
-
-                            className="
-                                w-full
-                                border
-                                border-zinc-200
-                                dark:border-zinc-800
-                                rounded-2xl
-                                px-4
-                                py-3
-                                dark:text-white
-                            "
-                        />
-
-                    </div>
-
-
-                    {/* ACTIVE */}
-
-                    <div className="flex items-center gap-3">
-
-                        <input
-                            type="checkbox"
-
-                            name="is_active"
-
-                            checked={formData.is_active}
-
-                            onChange={handleChange}
-                        />
-
-                        <label className="dark:text-white">
-
-                            Active Product
-
-                        </label>
-
-                    </div>
-
-
-                    {/* SUBMIT */}
-
-                    <Button
-                        type="submit"
-
-                        className="w-full"
+                        className="
+                            w-full
+                            rounded-2xl
+                            border
+                            border-zinc-200
+                            dark:border-zinc-800
+                            bg-white
+                            dark:bg-zinc-900
+                            dark:text-white
+                            px-4
+                            py-3
+                            outline-none
+                        "
                     >
 
-                        Create Product
+                        <option value="">
 
-                    </Button>
+                            Select category
 
-                </form>
+                        </option>
 
-            </div>
+                        {categories.map((category) => (
+
+                            <option
+                                key={category.id}
+
+                                value={category.id}
+                            >
+
+                                {category.name}
+
+                            </option>
+                        ))}
+
+                    </select>
+
+                </div>
+
+
+                {/* PRICE */}
+
+                <div className="space-y-2">
+
+                    <label className="dark:text-white">
+
+                        Initial Price
+
+                    </label>
+
+                    <Input
+                        type="number"
+
+                        step="0.01"
+
+                        name="price"
+
+                        placeholder="0.00"
+
+                        value={formData.price}
+
+                        onChange={handleChange}
+                    />
+
+                </div>
+
+
+                {/* IMAGE */}
+
+                <div className="space-y-2">
+
+                    <label className="dark:text-white">
+
+                        Product Image
+
+                    </label>
+
+                    <input
+                        type="file"
+
+                        name="image"
+
+                        accept="image/*"
+
+                        onChange={handleChange}
+
+                        className="
+                            w-full
+                            rounded-2xl
+                            border
+                            border-zinc-200
+                            dark:border-zinc-800
+                            bg-white
+                            dark:bg-zinc-900
+                            dark:text-white
+                            px-4
+                            py-3
+                        "
+                    />
+
+                </div>
+
+
+                {/* ACTIVE */}
+
+                <div
+                    className="
+                        flex
+                        items-center
+                        gap-3
+                    "
+                >
+
+                    <input
+                        type="checkbox"
+
+                        name="is_active"
+
+                        checked={formData.is_active}
+
+                        onChange={handleChange}
+                    />
+
+                    <label className="dark:text-white">
+
+                        Product is active
+
+                    </label>
+
+                </div>
+
+
+                {/* SUBMIT */}
+
+                <Button
+                    type="submit"
+
+                    className="w-full"
+                >
+
+                    Create Product
+
+                </Button>
+
+            </form>
 
         </Modal>
     )

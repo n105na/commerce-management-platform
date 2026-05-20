@@ -1,15 +1,18 @@
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 
 from .views import (
-    StoreSettingsViewSet
+    PlatformSettingsView
 )
 
 
-router = DefaultRouter()
+urlpatterns = [
 
-router.register(
-    'store-settings',
-    StoreSettingsViewSet
-)
+    path(
 
-urlpatterns = router.urls
+        'platform/',
+
+        PlatformSettingsView.as_view(),
+
+        name='platform-settings'
+    ),
+]

@@ -1,7 +1,7 @@
 import {
     createBrowserRouter,
 } from 'react-router-dom'
-
+import CategoriesPage from '../pages/CategoriesPage'
 import AppLayout from '../components/layouts/AppLayout'
 
 import ProtectedRoute from './ProtectedRoute'
@@ -73,7 +73,10 @@ export const router = createBrowserRouter([
                 path: 'reports',
                 element: <ReportsPage />,
             },
-
+            {
+             path: '/categories',
+             element: <CategoriesPage />,
+            },
             {
                 path: 'settings',
                 element: <SettingsPage />,

@@ -4,7 +4,14 @@ import {
 
 import {
     useQuery,
+    useMutation,
+    useQueryClient,
 } from '@tanstack/react-query'
+
+import {
+    Pencil,
+    Trash2,
+} from 'lucide-react'
 
 import Button from '../components/ui/Button'
 
@@ -12,20 +19,66 @@ import Input from '../components/ui/Input'
 
 import Card from '../components/ui/Card'
 
+import Modal from '../components/ui/Modal'
+
 import PageHeader from '../components/ui/PageHeader'
 
 import ProductModal from '../features/products/ProductModal'
 
+import UpdatePriceModal from '../features/products/UpdatePriceModal'
+
 import {
+
     getProducts,
+    deleteProduct,
+
 } from '../services/productService'
 
 
 export default function ProductsPage() {
 
-    const [search, setSearch] = useState('')
+    const queryClient =
+        useQueryClient()
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const [search, setSearch] =
+        useState('')
+
+
+    const [
+
+        isModalOpen,
+
+        setIsModalOpen,
+
+    ] = useState(false)
+
+
+    const [
+
+        isPriceModalOpen,
+
+        setIsPriceModalOpen,
+
+    ] = useState(false)
+
+
+    const [
+
+        selectedProduct,
+
+        setSelectedProduct,
+
+    ] = useState(null)
+
+
+    const [
+
+        productToDelete,
+
+        setProductToDelete,
+
+    ] = useState(null)
 
 
     const {
@@ -41,6 +94,29 @@ export default function ProductsPage() {
     })
 
 
+    /*
+    =====================================
+    DELETE
+    =====================================
+    */
+
+    const deleteMutation =
+        useMutation({
+
+            mutationFn: deleteProduct,
+
+            onSuccess: () => {
+
+                queryClient.invalidateQueries({
+
+                    queryKey: ['products'],
+                })
+
+                setProductToDelete(null)
+            },
+        })
+
+
     if (isLoading) {
 
         return (
@@ -54,19 +130,32 @@ export default function ProductsPage() {
     }
 
 
-    const products = data?.results || []
+    const products =
+        data?.results || []
 
 
-    const filteredProducts = products.filter(
+    const filteredProducts =
+        products.filter(
 
-        (product) =>
+            (product) =>
 
-            product.name
-                ?.toLowerCase()
-                .includes(
-                    search.toLowerCase()
-                )
-    )
+                product.name
+                    ?.toLowerCase()
+                    .includes(
+                        search.toLowerCase()
+                    )
+        )
+
+
+    function handleDelete() {
+
+        if (!productToDelete)
+            return
+
+        deleteMutation.mutate(
+            productToDelete.id
+        )
+    }
 
 
     return (
@@ -107,14 +196,16 @@ export default function ProductsPage() {
                     value={search}
 
                     onChange={(e) =>
-                        setSearch(e.target.value)
+                        setSearch(
+                            e.target.value
+                        )
                     }
                 />
 
             </div>
 
 
-            {/* PRODUCTS GRID */}
+            {/* GRID */}
 
             <div
                 className="
@@ -279,53 +370,93 @@ export default function ProductsPage() {
                                         "
                                     >
 
-                                        €{product.price || 0}
+                                        €{product.latest_price || 0}
 
                                     </h3>
 
                                 </div>
 
 
-                                {/* STATUS */}
+                                {/* ACTIONS */}
 
-                                {product.is_active ? (
+                                <div className="flex items-center gap-2">
 
-                                    <span
-                                        className="
-                                            px-3
-                                            py-1
-                                            rounded-full
-                                            bg-green-100
-                                            dark:bg-green-900/30
-                                            text-green-600
-                                            text-sm
-                                            font-medium
-                                        "
+                                    {/* EDIT PRICE */}
+
+                                    <Button
+                                        onClick={() => {
+
+                                            setSelectedProduct(product)
+
+                                            setIsPriceModalOpen(true)
+                                        }}
                                     >
 
-                                        Active
+                                        <Pencil size={16} />
 
-                                    </span>
+                                    </Button>
 
-                                ) : (
 
-                                    <span
+                                    {/* DELETE */}
+
+                                    <Button
                                         className="
-                                            px-3
-                                            py-1
-                                            rounded-full
-                                            bg-red-100
-                                            dark:bg-red-900/30
-                                            text-red-600
-                                            text-sm
-                                            font-medium
+                                            bg-red-600
+                                            hover:bg-red-700
                                         "
+
+                                        onClick={() =>
+                                            setProductToDelete(product)
+                                        }
                                     >
 
-                                        Inactive
+                                        <Trash2 size={16} />
 
-                                    </span>
-                                )}
+                                    </Button>
+
+
+                                    {/* STATUS */}
+
+                                    {product.is_active ? (
+
+                                        <span
+                                            className="
+                                                px-3
+                                                py-1
+                                                rounded-full
+                                                bg-green-100
+                                                dark:bg-green-900/30
+                                                text-green-600
+                                                text-sm
+                                                font-medium
+                                            "
+                                        >
+
+                                            Active
+
+                                        </span>
+
+                                    ) : (
+
+                                        <span
+                                            className="
+                                                px-3
+                                                py-1
+                                                rounded-full
+                                                bg-red-100
+                                                dark:bg-red-900/30
+                                                text-red-600
+                                                text-sm
+                                                font-medium
+                                            "
+                                        >
+
+                                            Inactive
+
+                                        </span>
+                                    )}
+
+                                </div>
 
                             </div>
 
@@ -337,7 +468,7 @@ export default function ProductsPage() {
             </div>
 
 
-            {/* MODAL */}
+            {/* CREATE PRODUCT */}
 
             <ProductModal
                 isOpen={isModalOpen}
@@ -346,6 +477,97 @@ export default function ProductsPage() {
                     setIsModalOpen(false)
                 }
             />
+
+
+            {/* UPDATE PRICE */}
+
+            <UpdatePriceModal
+                isOpen={isPriceModalOpen}
+
+                onClose={() =>
+                    setIsPriceModalOpen(false)
+                }
+
+                product={selectedProduct}
+            />
+
+
+            {/* DELETE CONFIRMATION */}
+
+            <Modal
+                isOpen={!!productToDelete}
+
+                onClose={() =>
+                    setProductToDelete(null)
+                }
+            >
+
+                <div className="space-y-6">
+
+                    <div>
+
+                        <h2
+                            className="
+                                text-2xl
+                                font-bold
+                                dark:text-white
+                            "
+                        >
+
+                            Delete Product
+
+                        </h2>
+
+                        <p className="text-zinc-500 mt-2">
+
+                            Are you sure you want to delete
+
+                            <span className="font-semibold">
+
+                                {' '}
+                                {productToDelete?.name}
+                            </span>
+
+                            ?
+                        </p>
+
+                    </div>
+
+
+                    <div className="flex gap-3">
+
+                        <Button
+                            className="w-full"
+
+                            onClick={() =>
+                                setProductToDelete(null)
+                            }
+                        >
+
+                            Cancel
+
+                        </Button>
+
+
+                        <Button
+                            className="
+                                w-full
+                                bg-red-600
+                                hover:bg-red-700
+                            "
+
+                            onClick={handleDelete}
+                        >
+
+                            Delete
+
+                        </Button>
+
+                    </div>
+
+                </div>
+
+            </Modal>
 
         </div>
     )

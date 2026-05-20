@@ -1,4 +1,14 @@
 import {
+    useEffect,
+    useState,
+} from 'react'
+
+import {
+    useQuery,
+    useMutation,
+} from '@tanstack/react-query'
+
+import {
     useTheme,
 } from '../contexts/ThemeContext'
 
@@ -13,6 +23,13 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
 import PageHeader from '../components/ui/PageHeader'
+
+import {
+
+    getPlatformSettings,
+    updatePlatformSettings,
+
+} from '../services/settingsService'
 
 
 export default function SettingsPage() {
@@ -29,11 +46,105 @@ export default function SettingsPage() {
     } = useLanguage()
 
 
+    const [formData, setFormData] = useState({
+
+        store_name: '',
+        business_email: '',
+        currency: 'EUR',
+        timezone: 'Europe/Paris',
+        logo: null,
+    })
+
+
+    const {
+
+        data,
+        refetch,
+
+    } = useQuery({
+
+        queryKey: ['platform-settings'],
+
+        queryFn: getPlatformSettings,
+    })
+
+
+    useEffect(() => {
+
+        if (data) {
+
+            setFormData({
+
+                store_name:
+                    data.store_name || '',
+
+                business_email:
+                    data.business_email || '',
+
+                currency:
+                    data.currency || 'EUR',
+
+                timezone:
+                    data.timezone || 'Europe/Paris',
+
+                logo: null,
+            })
+        }
+
+    }, [data])
+
+
+    const mutation = useMutation({
+
+        mutationFn: updatePlatformSettings,
+
+        onSuccess: () => {
+
+            refetch()
+
+            alert(
+                'Settings updated successfully'
+            )
+        },
+    })
+
+
+    function handleChange(e) {
+
+        const {
+
+            name,
+            value,
+            files,
+            type,
+
+        } = e.target
+
+
+        setFormData({
+
+            ...formData,
+
+            [name]:
+
+                type === 'file'
+                    ? files[0]
+                    : value,
+        })
+    }
+
+
+    function handleSubmit(e) {
+
+        e.preventDefault()
+
+        mutation.mutate(formData)
+    }
+
+
     return (
 
         <div className="space-y-8">
-
-            {/* HEADER */}
 
             <PageHeader
                 title="Settings"
@@ -48,72 +159,25 @@ export default function SettingsPage() {
 
                 <div>
 
-                    <h2
-                        className="
-                            text-2xl
-                            font-bold
-                            dark:text-white
-                        "
-                    >
+                    <h2 className="text-2xl font-bold dark:text-white">
 
                         Appearance
 
                     </h2>
 
-                    <p className="text-zinc-500 mt-1">
-
-                        Manage your application theme
-
-                    </p>
-
                 </div>
 
 
-                <div
-                    className="
-                        flex
-                        flex-col
-                        md:flex-row
-                        md:items-center
-                        md:justify-between
-                        gap-4
-                    "
+                <Button
+                    onClick={toggleTheme}
                 >
 
-                    <div>
+                    {theme === 'dark'
+                        ? 'Light Mode'
+                        : 'Dark Mode'
+                    }
 
-                        <h3
-                            className="
-                                font-semibold
-                                dark:text-white
-                            "
-                        >
-
-                            Theme Mode
-
-                        </h3>
-
-                        <p className="text-zinc-500 text-sm mt-1">
-
-                            Switch between dark and light mode
-
-                        </p>
-
-                    </div>
-
-
-                    <Button
-                        onClick={toggleTheme}
-                    >
-
-                        {theme === 'dark'
-                            ? 'Light Mode'
-                            : 'Dark Mode'
-                        }
-
-                    </Button>
-
-                </div>
+                </Button>
 
             </Card>
 
@@ -124,134 +188,92 @@ export default function SettingsPage() {
 
                 <div>
 
-                    <h2
-                        className="
-                            text-2xl
-                            font-bold
-                            dark:text-white
-                        "
-                    >
+                    <h2 className="text-2xl font-bold dark:text-white">
 
                         Language
 
                     </h2>
 
-                    <p className="text-zinc-500 mt-1">
-
-                        Select your preferred language
-
-                    </p>
-
                 </div>
 
 
-                <div className="max-w-sm">
+                <select
+                    value={language}
 
-                    <select
-                        value={language}
+                    onChange={(e) =>
+                        changeLanguage(
+                            e.target.value
+                        )
+                    }
 
-                        onChange={(e) =>
-                            changeLanguage(
-                                e.target.value
-                            )
-                        }
+                    className="
+                        w-full
+                        border
+                        border-zinc-200
+                        dark:border-zinc-800
+                        rounded-2xl
+                        px-4
+                        py-3
+                        bg-white
+                        dark:bg-zinc-900
+                        dark:text-white
+                    "
+                >
 
-                        className="
-                            w-full
-                            border
-                            border-zinc-200
-                            dark:border-zinc-800
-                            rounded-2xl
-                            px-4
-                            py-3
-                            bg-white
-                            dark:bg-zinc-900
-                            dark:text-white
-                            outline-none
-                        "
-                    >
+                    <option value="en">
+                        English
+                    </option>
 
-                        <option value="en">
+                    <option value="fr">
+                        Français
+                    </option>
 
-                            English
+                    <option value="ar">
+                        العربية
+                    </option>
 
-                        </option>
-
-                        <option value="fr">
-
-                            Français
-
-                        </option>
-
-                        <option value="ar">
-
-                            العربية
-
-                        </option>
-
-                    </select>
-
-                </div>
+                </select>
 
             </Card>
 
 
-            {/* BRANDING */}
+            {/* BUSINESS SETTINGS */}
 
-            <Card className="p-6 space-y-6">
+            <Card className="p-6">
 
-                <div>
+                <form
+                    onSubmit={handleSubmit}
 
-                    <h2
-                        className="
-                            text-2xl
-                            font-bold
-                            dark:text-white
-                        "
-                    >
-
-                        Branding
-
-                    </h2>
-
-                    <p className="text-zinc-500 mt-1">
-
-                        Customize your business branding
-
-                    </p>
-
-                </div>
-
-
-                <div
-                    className="
-                        grid
-                        grid-cols-1
-                        md:grid-cols-2
-                        gap-4
-                    "
+                    className="space-y-6"
                 >
+
+                    <div>
+
+                        <h2 className="text-2xl font-bold dark:text-white">
+
+                            Business Settings
+
+                        </h2>
+
+                    </div>
+
 
                     {/* STORE NAME */}
 
                     <div className="space-y-2">
 
-                        <label
-                            className="
-                                text-sm
-                                font-medium
-                                dark:text-white
-                            "
-                        >
+                        <label className="dark:text-white">
 
                             Store Name
 
                         </label>
 
                         <Input
-                            type="text"
+                            name="store_name"
 
-                            placeholder="Commerce Platform"
+                            value={formData.store_name}
+
+                            onChange={handleChange}
                         />
 
                     </div>
@@ -261,13 +283,7 @@ export default function SettingsPage() {
 
                     <div className="space-y-2">
 
-                        <label
-                            className="
-                                text-sm
-                                font-medium
-                                dark:text-white
-                            "
-                        >
+                        <label className="dark:text-white">
 
                             Business Email
 
@@ -276,76 +292,33 @@ export default function SettingsPage() {
                         <Input
                             type="email"
 
-                            placeholder="store@email.com"
+                            name="business_email"
+
+                            value={formData.business_email}
+
+                            onChange={handleChange}
                         />
 
                     </div>
 
-                </div>
-
-
-                <Button>
-
-                    Save Branding
-
-                </Button>
-
-            </Card>
-
-
-            {/* BUSINESS */}
-
-            <Card className="p-6 space-y-6">
-
-                <div>
-
-                    <h2
-                        className="
-                            text-2xl
-                            font-bold
-                            dark:text-white
-                        "
-                    >
-
-                        Business Settings
-
-                    </h2>
-
-                    <p className="text-zinc-500 mt-1">
-
-                        Configure business-related settings
-
-                    </p>
-
-                </div>
-
-
-                <div
-                    className="
-                        grid
-                        grid-cols-1
-                        md:grid-cols-2
-                        gap-4
-                    "
-                >
 
                     {/* CURRENCY */}
 
                     <div className="space-y-2">
 
-                        <label
-                            className="
-                                text-sm
-                                font-medium
-                                dark:text-white
-                            "
-                        >
+                        <label className="dark:text-white">
 
                             Currency
 
                         </label>
 
                         <select
+                            name="currency"
+
+                            value={formData.currency}
+
+                            onChange={handleChange}
+
                             className="
                                 w-full
                                 border
@@ -357,23 +330,22 @@ export default function SettingsPage() {
                                 bg-white
                                 dark:bg-zinc-900
                                 dark:text-white
-                                outline-none
                             "
                         >
 
-                            <option>
+                            <option value="EUR">
 
                                 EUR (€)
 
                             </option>
 
-                            <option>
+                            <option value="USD">
 
                                 USD ($)
 
                             </option>
 
-                            <option>
+                            <option value="DZD">
 
                                 DZD (دج)
 
@@ -388,19 +360,19 @@ export default function SettingsPage() {
 
                     <div className="space-y-2">
 
-                        <label
-                            className="
-                                text-sm
-                                font-medium
-                                dark:text-white
-                            "
-                        >
+                        <label className="dark:text-white">
 
                             Timezone
 
                         </label>
 
                         <select
+                            name="timezone"
+
+                            value={formData.timezone}
+
+                            onChange={handleChange}
+
                             className="
                                 w-full
                                 border
@@ -412,17 +384,16 @@ export default function SettingsPage() {
                                 bg-white
                                 dark:bg-zinc-900
                                 dark:text-white
-                                outline-none
                             "
                         >
 
-                            <option>
+                            <option value="Europe/Paris">
 
                                 Europe/Paris
 
                             </option>
 
-                            <option>
+                            <option value="Africa/Algiers">
 
                                 Africa/Algiers
 
@@ -432,14 +403,48 @@ export default function SettingsPage() {
 
                     </div>
 
-                </div>
+
+                    {/* LOGO */}
+
+                    <div className="space-y-2">
+
+                        <label className="dark:text-white">
+
+                            Store Logo
+
+                        </label>
+
+                        <input
+                            type="file"
+
+                            name="logo"
+
+                            accept="image/*"
+
+                            onChange={handleChange}
+
+                            className="
+                                w-full
+                                border
+                                border-zinc-200
+                                dark:border-zinc-800
+                                rounded-2xl
+                                px-4
+                                py-3
+                                dark:text-white
+                            "
+                        />
+
+                    </div>
 
 
-                <Button>
+                    <Button type="submit">
 
-                    Save Settings
+                        Save Settings
 
-                </Button>
+                    </Button>
+
+                </form>
 
             </Card>
 

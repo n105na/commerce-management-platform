@@ -4,13 +4,16 @@ import {
 
 import {
     useQuery,
+    useMutation,
+    useQueryClient,
 } from '@tanstack/react-query'
 
 import {
-    Search,
     User,
     Phone,
     Wallet,
+    Trash2,
+    Pencil,
 } from 'lucide-react'
 
 import Card from '../components/ui/Card'
@@ -19,16 +22,55 @@ import Button from '../components/ui/Button'
 
 import Input from '../components/ui/Input'
 
+import Modal from '../components/ui/Modal'
+
 import PageHeader from '../components/ui/PageHeader'
 
+import CustomerModal from '../features/customers/CustomerModal'
+
 import {
+
     getCustomers,
+    deleteCustomer,
+
 } from '../services/customerService'
 
 
 export default function CustomersPage() {
 
-    const [search, setSearch] = useState('')
+    const queryClient =
+        useQueryClient()
+
+
+    const [search, setSearch] =
+        useState('')
+
+
+    const [
+
+        isModalOpen,
+
+        setIsModalOpen,
+
+    ] = useState(false)
+
+
+    const [
+
+        customerToDelete,
+
+        setCustomerToDelete,
+
+    ] = useState(null)
+
+
+    const [
+
+        selectedCustomer,
+
+        setSelectedCustomer,
+
+    ] = useState(null)
 
 
     const {
@@ -44,6 +86,29 @@ export default function CustomersPage() {
     })
 
 
+    /*
+    =====================================
+    DELETE
+    =====================================
+    */
+
+    const deleteMutation =
+        useMutation({
+
+            mutationFn: deleteCustomer,
+
+            onSuccess: () => {
+
+                queryClient.invalidateQueries({
+
+                    queryKey: ['customers'],
+                })
+
+                setCustomerToDelete(null)
+            },
+        })
+
+
     if (isLoading) {
 
         return (
@@ -57,19 +122,32 @@ export default function CustomersPage() {
     }
 
 
-    const customers = data?.results || []
+    const customers =
+        data?.results || []
 
 
-    const filteredCustomers = customers.filter(
+    const filteredCustomers =
+        customers.filter(
 
-        (customer) =>
+            (customer) =>
 
-            customer.full_name
-                ?.toLowerCase()
-                .includes(
-                    search.toLowerCase()
-                )
-    )
+                customer.full_name
+                    ?.toLowerCase()
+                    .includes(
+                        search.toLowerCase()
+                    )
+        )
+
+
+    function handleDelete() {
+
+        if (!customerToDelete)
+            return
+
+        deleteMutation.mutate(
+            customerToDelete.id
+        )
+    }
 
 
     return (
@@ -85,7 +163,14 @@ export default function CustomersPage() {
 
                 action={
 
-                    <Button>
+                    <Button
+                        onClick={() => {
+
+                            setSelectedCustomer(null)
+
+                            setIsModalOpen(true)
+                        }}
+                    >
 
                         Add Customer
 
@@ -106,7 +191,9 @@ export default function CustomersPage() {
                     value={search}
 
                     onChange={(e) =>
-                        setSearch(e.target.value)
+                        setSearch(
+                            e.target.value
+                        )
                     }
                 />
 
@@ -177,7 +264,10 @@ export default function CustomersPage() {
 
                                 <User
                                     size={22}
-                                    className="text-zinc-700 dark:text-zinc-300"
+                                    className="
+                                        text-zinc-700
+                                        dark:text-zinc-300
+                                    "
                                 />
 
                             </div>
@@ -198,7 +288,12 @@ export default function CustomersPage() {
                                     className="text-zinc-400"
                                 />
 
-                                <span className="text-zinc-600 dark:text-zinc-300">
+                                <span
+                                    className="
+                                        text-zinc-600
+                                        dark:text-zinc-300
+                                    "
+                                >
 
                                     {customer.phone_number || 'No phone'}
 
@@ -216,9 +311,15 @@ export default function CustomersPage() {
                                     className="text-red-500"
                                 />
 
-                                <span className="font-medium text-red-600">
+                                <span
+                                    className="
+                                        font-medium
+                                        text-red-600
+                                    "
+                                >
 
-                                    €{customer.unpaid_amount || 0}
+                                    €
+                                    {customer.unpaid_amount || 0}
 
                                 </span>
 
@@ -226,10 +327,146 @@ export default function CustomersPage() {
 
                         </div>
 
+
+                        {/* ACTIONS */}
+
+                        <div className="mt-6 flex justify-end gap-2">
+
+                            {/* EDIT */}
+
+                            <Button
+                                onClick={() => {
+
+                                    setSelectedCustomer(customer)
+
+                                    setIsModalOpen(true)
+                                }}
+                            >
+
+                                <Pencil size={16} />
+
+                            </Button>
+
+
+                            {/* DELETE */}
+
+                            <Button
+                                className="
+                                    bg-red-600
+                                    hover:bg-red-700
+                                "
+
+                                onClick={() =>
+                                    setCustomerToDelete(
+                                        customer
+                                    )
+                                }
+                            >
+
+                                <Trash2 size={16} />
+
+                            </Button>
+
+                        </div>
+
                     </Card>
                 ))}
 
             </div>
+
+
+            {/* CUSTOMER MODAL */}
+
+            <CustomerModal
+                isOpen={isModalOpen}
+
+                onClose={() => {
+
+                    setIsModalOpen(false)
+
+                    setSelectedCustomer(null)
+                }}
+
+                customer={selectedCustomer}
+            />
+
+
+            {/* DELETE CONFIRMATION */}
+
+            <Modal
+                isOpen={!!customerToDelete}
+
+                onClose={() =>
+                    setCustomerToDelete(null)
+                }
+            >
+
+                <div className="space-y-6">
+
+                    <div>
+
+                        <h2
+                            className="
+                                text-2xl
+                                font-bold
+                                dark:text-white
+                            "
+                        >
+
+                            Delete Customer
+
+                        </h2>
+
+                        <p className="text-zinc-500 mt-2">
+
+                            Are you sure you want to delete
+
+                            <span className="font-semibold">
+
+                                {' '}
+                                {customerToDelete?.full_name}
+                            </span>
+
+                            ?
+                        </p>
+
+                    </div>
+
+
+                    <div className="flex gap-3">
+
+                        <Button
+                            className="w-full"
+
+                            onClick={() =>
+                                setCustomerToDelete(null)
+                            }
+                        >
+
+                            Cancel
+
+                        </Button>
+
+
+                        <Button
+                            className="
+                                w-full
+                                bg-red-600
+                                hover:bg-red-700
+                            "
+
+                            onClick={handleDelete}
+                        >
+
+                            Delete
+
+                        </Button>
+
+                    </div>
+
+                </div>
+
+            </Modal>
 
         </div>
     )

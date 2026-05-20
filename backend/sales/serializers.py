@@ -8,51 +8,74 @@ from .models import (
 )
 
 from products.models import Product
-from products.serializers import ProductSerializer
 
-class CustomerSerializer(serializers.ModelSerializer):
+
+# ==========================================
+# CUSTOMER
+# ==========================================
+
+class CustomerSerializer(
+    serializers.ModelSerializer
+):
 
     class Meta:
+
         model = Customer
 
-        fields = [
-            'id',
+        fields = '__all__'
 
-            'user',
 
-            'full_name',
+# ==========================================
+# ORDER ITEM
+# ==========================================
 
-            'phone_number',
+class OrderItemSerializer(
+    serializers.ModelSerializer
+):
 
-            'address',
+    product_name =serializers.CharField(
 
-            'created_at',
-        ]
+            source='product.name',
 
-        read_only_fields = [
-            'created_at',
-        ]
+            read_only=True
+        )
 
-class OrderItemSerializer(serializers.ModelSerializer):
 
-    product = ProductSerializer(
-        read_only=True
-    )
+    product_id =serializers.PrimaryKeyRelatedField(
 
-    product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(),
-        source='product',
-        write_only=True
-    )
+            queryset=Product.objects.all(),
+
+            source='product',
+
+            write_only=True
+        )
+
+
+    order_id =serializers.PrimaryKeyRelatedField(
+
+            queryset=Order.objects.all(),
+
+            source='order',
+
+            write_only=True
+        )
+
 
     class Meta:
+
         model = OrderItem
 
         fields = [
+
             'id',
+
+            'order',
+            'order_id',
 
             'product',
             'product_id',
+
+            'product_name',
 
             'quantity',
 
@@ -62,38 +85,65 @@ class OrderItemSerializer(serializers.ModelSerializer):
         ]
 
         read_only_fields = [
+
+            'unit_price',
+
             'subtotal',
+
+            'product',
+            'order',
         ]
 
-class OrderSerializer(serializers.ModelSerializer):
 
-    customer = CustomerSerializer(
-        read_only=True
-    )
+# ==========================================
+# ORDER
+# ==========================================
 
-    customer_id = serializers.PrimaryKeyRelatedField(
-        queryset=Customer.objects.all(),
-        source='customer',
-        write_only=True
-    )
+class OrderSerializer(
+    serializers.ModelSerializer
+):
 
-    items = OrderItemSerializer(
-        many=True,
-        read_only=True
-    )
+    customer_name =serializers.CharField(
 
-    remaining_amount = serializers.SerializerMethodField()
+            source='customer.full_name',
+
+            read_only=True
+        )
+
+
+    customer_id =serializers.PrimaryKeyRelatedField(
+
+            queryset=Customer.objects.all(),
+
+            source='customer',
+
+            write_only=True
+        )
+
+
+    items =OrderItemSerializer(
+
+            many=True,
+
+            read_only=True
+        )
+
+
+    remaining_amount =serializers.SerializerMethodField()
+
 
     class Meta:
+
         model = Order
 
         fields = [
+
             'id',
 
             'customer',
             'customer_id',
 
-            'created_by',
+            'customer_name',
 
             'status',
 
@@ -111,42 +161,36 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
         read_only_fields = [
-            'created_by',
+
+            'total_amount',
+
             'created_at',
+
+            'customer',
         ]
 
 
-    # ==========================================
-    # REMAINING AMOUNT
-    # ==========================================
-
-    def get_remaining_amount(self, obj):
+    def get_remaining_amount(
+        self,
+        obj
+    ):
 
         return (
             obj.total_amount -
             obj.paid_amount
         )
-class CustomerPaymentSerializer(serializers.ModelSerializer):
+
+
+# ==========================================
+# PAYMENT
+# ==========================================
+
+class CustomerPaymentSerializer(
+    serializers.ModelSerializer
+):
 
     class Meta:
+
         model = CustomerPayment
 
-        fields = [
-            'id',
-
-            'customer',
-
-            'order',
-
-            'amount',
-
-            'payment_date',
-
-            'notes',
-
-            'created_at',
-        ]
-
-        read_only_fields = [
-            'created_at',
-        ]
+        fields = '__all__'

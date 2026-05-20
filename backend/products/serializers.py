@@ -8,79 +8,99 @@ from .models import (
 
 
 # ==========================================
-# CATEGORY SERIALIZER
+# CATEGORY
 # ==========================================
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(
+    serializers.ModelSerializer
+):
 
     class Meta:
+
         model = Category
 
         fields = [
+
             'id',
+
             'name',
+
             'slug',
+
             'created_at',
         ]
 
         read_only_fields = [
+
             'slug',
+
             'created_at',
         ]
 
 
 # ==========================================
-# PRODUCT PRICE SERIALIZER
+# PRODUCT PRICE
 # ==========================================
 
-class ProductPriceSerializer(serializers.ModelSerializer):
+class ProductPriceSerializer(
+    serializers.ModelSerializer
+):
 
     class Meta:
+
         model = ProductPrice
 
         fields = [
+
             'id',
+
+            'product',
+
             'price',
+
             'effective_date',
+
             'created_at',
         ]
 
         read_only_fields = [
+
             'created_at',
         ]
 
 
 # ==========================================
-# PRODUCT SERIALIZER
+# PRODUCT
 # ==========================================
 
-class ProductSerializer(serializers.ModelSerializer):
+class ProductSerializer(
+    serializers.ModelSerializer
+):
 
-    # Readable category data
-    category = CategorySerializer(
-        read_only=True
-    )
+    category_name =serializers.CharField(
 
-    # Used for creation/update
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(),
-        source='category',
-        write_only=True
-    )
+            source='category.name',
 
-    # Custom computed field
-    latest_price = serializers.SerializerMethodField()
+            read_only=True
+        )
+
+
+    latest_price =serializers.SerializerMethodField()
+
 
     class Meta:
+
         model = Product
 
         fields = [
+
             'id',
 
             'category',
-            'category_id',
+            'category_name',
 
             'name',
+
             'slug',
 
             'description',
@@ -92,24 +112,29 @@ class ProductSerializer(serializers.ModelSerializer):
             'latest_price',
 
             'created_at',
+
             'updated_at',
         ]
 
         read_only_fields = [
+
             'slug',
+
             'created_at',
+
             'updated_at',
         ]
 
-    # ==========================================
-    # GET CURRENT PRICE
-    # ==========================================
 
-    def get_latest_price(self, obj):
+    def get_latest_price(
+        self,
+        obj
+    ):
 
-        latest_price = obj.prices.first()
+        latest_price =obj.prices.first()
 
         if latest_price:
+
             return latest_price.price
 
         return None

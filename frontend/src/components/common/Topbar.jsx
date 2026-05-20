@@ -23,6 +23,10 @@ import {
     useSidebar,
 } from '../../contexts/SidebarContext'
 
+import {
+    useSettings,
+} from '../../contexts/SettingsContext'
+
 
 export default function Topbar() {
 
@@ -46,6 +50,10 @@ export default function Topbar() {
     const {
         toggleSidebar,
     } = useSidebar()
+
+    const {
+        settings,
+    } = useSettings()
 
 
     return (
@@ -101,19 +109,72 @@ export default function Topbar() {
 
                 {/* TITLE */}
 
-                <div>
+                <div className="flex items-center gap-4">
 
-                    <h2 className="text-xl font-bold dark:text-white">
+                    {/* STORE LOGO */}
 
-                        Welcome back 👋
+                    <div
+                        className="
+                            hidden
+                            md:flex
+                            w-12
+                            h-12
+                            rounded-2xl
+                            overflow-hidden
+                            bg-zinc-100
+                            dark:bg-zinc-800
+                            items-center
+                            justify-center
+                        "
+                    >
 
-                    </h2>
+                        {settings?.logo ? (
 
-                    <p className="text-sm text-zinc-500">
+                            <img
+                                src={settings.logo}
 
-                        Manage your business efficiently
+                                alt="Store Logo"
 
-                    </p>
+                                className="
+                                    w-full
+                                    h-full
+                                    object-cover
+                                "
+                            />
+
+                        ) : (
+
+                            <span
+                                className="
+                                    text-lg
+                                    font-bold
+                                    dark:text-white
+                                "
+                            >
+
+                                {settings?.store_name?.[0] || 'C'}
+
+                            </span>
+                        )}
+
+                    </div>
+
+
+                    <div>
+
+                        <h2 className="text-xl font-bold dark:text-white">
+
+                            {t('welcome_back')} 
+
+                        </h2>
+
+                        <p className="text-sm text-zinc-500">
+
+                            {settings?.store_name || 'CommerceOS'}
+
+                        </p>
+
+                    </div>
 
                 </div>
 
@@ -212,8 +273,6 @@ export default function Topbar() {
                     "
                 >
 
-                    {/* AVATAR */}
-
                     <div
                         className="
                             w-10
@@ -234,8 +293,6 @@ export default function Topbar() {
 
                     </div>
 
-
-                    {/* USER INFO */}
 
                     <div>
 

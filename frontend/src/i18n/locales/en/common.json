@@ -7,5 +7,21 @@
     "finance": "Finance",
     "reports": "Reports",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+  "welcome_back": "Welcome back",
+  "business_platform": "Business Platform",
+  "business_management_platform": "Business management platform",
+  "sign_in_manage_business": "Sign in to manage your business",
+  "appearance": "Appearance",
+  "language": "Language",
+  "business_settings": "Business Settings",
+  "store_name": "Store Name",
+  "business_email": "Business Email",
+  "currency": "Currency",
+  "timezone": "Timezone",
+  "store_logo": "Store Logo",
+  "save_settings": "Save Settings",
+  "light_mode": "Light Mode",
+  "dark_mode": "Dark Mode"
+
 }

@@ -31,6 +31,12 @@ import './styles/theme.css'
 import {
     SidebarProvider,
 } from './contexts/SidebarContext'
+import {
+    SettingsProvider,
+} from './contexts/SettingsContext'
+
+
+
 const queryClient = new QueryClient()
 
 
@@ -49,7 +55,7 @@ ReactDOM.createRoot(
                 <LanguageProvider>
 
                     <SidebarProvider>
-
+                   <SettingsProvider>
                     <AuthProvider>
 
                         <RouterProvider
@@ -57,6 +63,7 @@ ReactDOM.createRoot(
                         />
                         
                     </AuthProvider>
+                    </SettingsProvider>
                     </SidebarProvider>
                 </LanguageProvider>
 

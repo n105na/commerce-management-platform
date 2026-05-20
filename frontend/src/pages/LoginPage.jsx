@@ -14,6 +14,10 @@ import {
     useAuth,
 } from '../contexts/AuthContext'
 
+import {
+    useSettings,
+} from '../contexts/SettingsContext'
+
 import Card from '../components/ui/Card'
 
 import Button from '../components/ui/Button'
@@ -26,6 +30,10 @@ export default function LoginPage() {
     const navigate = useNavigate()
 
     const { login } = useAuth()
+
+    const {
+        settings,
+    } = useSettings()
 
 
     const [formData, setFormData] = useState({
@@ -90,25 +98,43 @@ export default function LoginPage() {
 
                     <div
                         className="
-                            w-16
-                            h-16
+                            w-20
+                            h-20
                             rounded-3xl
-                            bg-zinc-900
-                            dark:bg-white
+                            overflow-hidden
+                            bg-zinc-100
+                            dark:bg-zinc-800
                             flex
                             items-center
                             justify-center
-                            mb-4
+                            mb-5
                         "
                     >
 
-                        <ShoppingBag
-                            className="
-                                text-white
-                                dark:text-black
-                            "
-                            size={28}
-                        />
+                        {settings?.logo ? (
+
+                            <img
+                                src={settings.logo}
+
+                                alt="Store Logo"
+
+                                className="
+                                    w-full
+                                    h-full
+                                    object-cover
+                                "
+                            />
+
+                        ) : (
+
+                            <ShoppingBag
+                                className="
+                                    text-zinc-700
+                                    dark:text-white
+                                "
+                                size={32}
+                            />
+                        )}
 
                     </div>
 
@@ -122,7 +148,7 @@ export default function LoginPage() {
                         "
                     >
 
-                        CommerceOS
+                        {settings?.store_name || 'CommerceOS'}
 
                     </h1>
 

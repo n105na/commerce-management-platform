@@ -7,5 +7,21 @@
     "finance": "المالية",
     "reports": "التقارير",
     "settings": "الإعدادات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+  "welcome_back": "مرحبًا بعودتك",
+  "business_platform": "منصة الأعمال",
+  "business_management_platform": "منصة إدارة الأعمال",
+  "sign_in_manage_business": "سجل الدخول لإدارة نشاطك التجاري",
+  "appearance": "المظهر",
+  "language": "اللغة",
+  "business_settings": "إعدادات النشاط التجاري",
+  "store_name": "اسم المتجر",
+  "business_email": "البريد الإلكتروني",
+  "currency": "العملة",
+  "timezone": "المنطقة الزمنية",
+  "store_logo": "شعار المتجر",
+  "save_settings": "حفظ الإعدادات",
+  "light_mode": "الوضع الفاتح",
+  "dark_mode": "الوضع الداكن"
+
 }

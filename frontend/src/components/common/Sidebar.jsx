@@ -7,6 +7,7 @@ import {
     Wallet,
     BarChart3,
     Settings,
+    FolderKanban,
     X,
 } from 'lucide-react'
 
@@ -22,10 +23,18 @@ import {
     useSidebar,
 } from '../../contexts/SidebarContext'
 
+import {
+    useSettings,
+} from '../../contexts/SettingsContext'
+
 
 export default function Sidebar() {
 
     const { t } = useTranslation()
+
+    const {
+        settings,
+    } = useSettings()
 
     const {
 
@@ -48,6 +57,12 @@ export default function Sidebar() {
             label: t('products'),
             icon: Package,
             path: '/products',
+        },
+
+        {
+            label: t('categories'),
+            icon: FolderKanban,
+            path: '/categories',
         },
 
         {
@@ -142,11 +157,78 @@ export default function Sidebar() {
 
                 <div className="flex items-center justify-between lg:hidden mb-6">
 
-                    <h1 className="text-xl font-bold dark:text-white">
+                    <div className="flex items-center gap-3">
 
-                        CommerceOS
+                        <div
+                            className="
+                                w-12
+                                h-12
+                                rounded-2xl
+                                overflow-hidden
+                                bg-zinc-100
+                                dark:bg-zinc-800
+                                flex
+                                items-center
+                                justify-center
+                            "
+                        >
 
-                    </h1>
+                            {settings?.logo ? (
+
+                                <img
+                                    src={settings.logo}
+
+                                    alt="Store Logo"
+
+                                    className="
+                                        w-full
+                                        h-full
+                                        object-cover
+                                    "
+                                />
+
+                            ) : (
+
+                                <span
+                                    className="
+                                        text-xl
+                                        font-bold
+                                        dark:text-white
+                                    "
+                                >
+
+                                    {settings?.store_name?.[0] || 'C'}
+
+                                </span>
+                            )}
+
+                        </div>
+
+
+                        <div>
+
+                            <h1
+                                className="
+                                    text-xl
+                                    font-bold
+                                    dark:text-white
+                                "
+                            >
+
+                                {settings?.store_name || 'CommerceOS'}
+
+                            </h1>
+
+                            <p className="text-xs text-zinc-500">
+
+                                {t('business_platform')}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
 
                     <button
                         onClick={closeSidebar}
@@ -161,21 +243,78 @@ export default function Sidebar() {
                 </div>
 
 
-                {/* LOGO */}
+                {/* DESKTOP LOGO */}
 
-                <div className="hidden lg:block mb-10">
+                <div className="hidden lg:flex items-center gap-4 mb-10">
 
-                    <h1 className="text-2xl font-bold dark:text-white">
+                    <div
+                        className="
+                            w-14
+                            h-14
+                            rounded-3xl
+                            overflow-hidden
+                            bg-zinc-100
+                            dark:bg-zinc-800
+                            flex
+                            items-center
+                            justify-center
+                            shrink-0
+                        "
+                    >
 
-                        CommerceOS
+                        {settings?.logo ? (
 
-                    </h1>
+                            <img
+                                src={settings.logo}
 
-                    <p className="text-sm text-zinc-500 mt-1">
+                                alt="Store Logo"
 
-                        Business management platform
+                                className="
+                                    w-full
+                                    h-full
+                                    object-cover
+                                "
+                            />
 
-                    </p>
+                        ) : (
+
+                            <span
+                                className="
+                                    text-2xl
+                                    font-bold
+                                    dark:text-white
+                                "
+                            >
+
+                                {settings?.store_name?.[0] || 'C'}
+
+                            </span>
+                        )}
+
+                    </div>
+
+
+                    <div>
+
+                        <h1
+                            className="
+                                text-2xl
+                                font-bold
+                                dark:text-white
+                            "
+                        >
+
+                            {settings?.store_name || 'CommerceOS'}
+
+                        </h1>
+
+                        <p className="text-sm text-zinc-500 mt-1">
+
+                            {t('business_management_platform')}
+
+                        </p>
+
+                    </div>
 
                 </div>
 

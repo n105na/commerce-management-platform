@@ -4,18 +4,28 @@ import {
 
 import {
     useQuery,
+    useMutation,
+    useQueryClient,
 } from '@tanstack/react-query'
 
 import {
     Search,
     ShoppingCart,
+    Trash2,
+    Ban,
 } from 'lucide-react'
 
 import {
+
     getOrders,
+    cancelOrder,
+    deleteOrder,
+
 } from '../services/salesService'
 
 import OrderStatusBadge from '../components/common/OrderStatusBadge'
+
+import CreateOrderModal from '../features/sales/CreateOrderModal'
 
 import Card from '../components/ui/Card'
 
@@ -23,12 +33,46 @@ import Button from '../components/ui/Button'
 
 import Input from '../components/ui/Input'
 
+import Modal from '../components/ui/Modal'
+
 import PageHeader from '../components/ui/PageHeader'
 
 
 export default function SalesPage() {
 
-    const [search, setSearch] = useState('')
+    const queryClient =
+        useQueryClient()
+
+
+    const [search, setSearch] =
+        useState('')
+
+
+    const [
+
+        isModalOpen,
+
+        setIsModalOpen,
+
+    ] = useState(false)
+
+
+    const [
+
+        selectedOrder,
+
+        setSelectedOrder,
+
+    ] = useState(null)
+
+
+    const [
+
+        actionType,
+
+        setActionType,
+
+    ] = useState(null)
 
 
     const {
@@ -44,6 +88,57 @@ export default function SalesPage() {
     })
 
 
+    /*
+    =====================================
+    CANCEL
+    =====================================
+    */
+
+    const cancelMutation =
+        useMutation({
+
+            mutationFn: cancelOrder,
+
+            onSuccess: () => {
+
+                queryClient.invalidateQueries({
+
+                    queryKey: ['orders'],
+                })
+
+                queryClient.invalidateQueries({
+
+                    queryKey: ['inventory-items'],
+                })
+
+                setSelectedOrder(null)
+            },
+        })
+
+
+    /*
+    =====================================
+    DELETE
+    =====================================
+    */
+
+    const deleteMutation =
+        useMutation({
+
+            mutationFn: deleteOrder,
+
+            onSuccess: () => {
+
+                queryClient.invalidateQueries({
+
+                    queryKey: ['orders'],
+                })
+
+                setSelectedOrder(null)
+            },
+        })
+
+
     if (isLoading) {
 
         return (
@@ -57,19 +152,44 @@ export default function SalesPage() {
     }
 
 
-    const orders = data?.results || []
+    const orders =
+        data?.results || []
 
 
-    const filteredOrders = orders.filter(
+    const filteredOrders =
+        orders.filter(
 
-        (order) =>
+            (order) =>
 
-            order.customer?.full_name
-                ?.toLowerCase()
-                .includes(
-                    search.toLowerCase()
-                )
-    )
+                order.customer_name
+                    ?.toLowerCase()
+                    .includes(
+                        search.toLowerCase()
+                    )
+        )
+
+
+    function handleConfirm() {
+
+        if (!selectedOrder)
+            return
+
+
+        if (actionType === 'cancel') {
+
+            cancelMutation.mutate(
+                selectedOrder.id
+            )
+        }
+
+
+        if (actionType === 'delete') {
+
+            deleteMutation.mutate(
+                selectedOrder.id
+            )
+        }
+    }
 
 
     return (
@@ -85,7 +205,11 @@ export default function SalesPage() {
 
                 action={
 
-                    <Button>
+                    <Button
+                        onClick={() =>
+                            setIsModalOpen(true)
+                        }
+                    >
 
                         Create Order
 
@@ -106,7 +230,9 @@ export default function SalesPage() {
                     value={search}
 
                     onChange={(e) =>
-                        setSearch(e.target.value)
+                        setSearch(
+                            e.target.value
+                        )
                     }
                 />
 
@@ -117,7 +243,7 @@ export default function SalesPage() {
 
             <Card className="overflow-hidden">
 
-                {/* TABLE HEADER */}
+                {/* HEADER */}
 
                 <div
                     className="
@@ -146,7 +272,10 @@ export default function SalesPage() {
 
                         <ShoppingCart
                             size={22}
-                            className="text-zinc-700 dark:text-zinc-300"
+                            className="
+                                text-zinc-700
+                                dark:text-zinc-300
+                            "
                         />
 
                     </div>
@@ -227,7 +356,19 @@ export default function SalesPage() {
 
                                 <th className="text-left p-4 dark:text-white">
 
+                                    Items
+
+                                </th>
+
+                                <th className="text-left p-4 dark:text-white">
+
                                     Status
+
+                                </th>
+
+                                <th className="text-left p-4 dark:text-white">
+
+                                    Actions
 
                                 </th>
 
@@ -253,41 +394,170 @@ export default function SalesPage() {
                                     "
                                 >
 
-                                    <td className="p-4 font-medium dark:text-white">
+                                    {/* ORDER */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            font-medium
+                                            dark:text-white
+                                        "
+                                    >
 
                                         #{order.id}
 
                                     </td>
 
-                                    <td className="p-4 text-zinc-600 dark:text-zinc-300">
 
-                                        {order.customer.full_name}
+                                    {/* CUSTOMER */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-zinc-600
+                                            dark:text-zinc-300
+                                        "
+                                    >
+
+                                        {order.customer_name}
 
                                     </td>
 
-                                    <td className="p-4 text-zinc-600 dark:text-zinc-300">
+
+                                    {/* TOTAL */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            font-medium
+                                            dark:text-white
+                                        "
+                                    >
 
                                         €{order.total_amount}
 
                                     </td>
 
-                                    <td className="p-4 text-green-600 font-medium">
+
+                                    {/* PAID */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-green-600
+                                            font-medium
+                                        "
+                                    >
 
                                         €{order.paid_amount}
 
                                     </td>
 
-                                    <td className="p-4 text-red-600 font-medium">
+
+                                    {/* REMAINING */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-red-600
+                                            font-medium
+                                        "
+                                    >
 
                                         €{order.remaining_amount}
 
                                     </td>
+
+
+                                    {/* ITEMS */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-zinc-600
+                                            dark:text-zinc-300
+                                        "
+                                    >
+
+                                        {
+                                            order.items
+
+                                                ? order.items.reduce(
+
+                                                    (
+                                                        total,
+                                                        item
+                                                    ) =>
+
+                                                        total +
+
+                                                        Number(
+                                                            item.quantity
+                                                        ),
+
+                                                    0
+                                                )
+
+                                                : 0
+                                        }
+
+                                    </td>
+
+
+                                    {/* STATUS */}
 
                                     <td className="p-4">
 
                                         <OrderStatusBadge
                                             status={order.status}
                                         />
+
+                                    </td>
+
+
+                                    {/* ACTIONS */}
+
+                                    <td className="p-4">
+
+                                        <div className="flex gap-2">
+
+                                            {/* CANCEL */}
+
+                                            <Button
+                                                onClick={() => {
+
+                                                    setSelectedOrder(order)
+
+                                                    setActionType('cancel')
+                                                }}
+                                            >
+
+                                                <Ban size={16} />
+
+                                            </Button>
+
+
+                                            {/* DELETE */}
+
+                                            <Button
+                                                className="
+                                                    bg-red-600
+                                                    hover:bg-red-700
+                                                "
+
+                                                onClick={() => {
+
+                                                    setSelectedOrder(order)
+
+                                                    setActionType('delete')
+                                                }}
+                                            >
+
+                                                <Trash2 size={16} />
+
+                                            </Button>
+
+                                        </div>
 
                                     </td>
 
@@ -301,6 +571,103 @@ export default function SalesPage() {
                 </div>
 
             </Card>
+
+
+            {/* CREATE ORDER */}
+
+            <CreateOrderModal
+                isOpen={isModalOpen}
+
+                onClose={() =>
+                    setIsModalOpen(false)
+                }
+            />
+
+
+            {/* CONFIRMATION MODAL */}
+
+            <Modal
+                isOpen={!!selectedOrder}
+
+                onClose={() =>
+                    setSelectedOrder(null)
+                }
+            >
+
+                <div className="space-y-6">
+
+                    <div>
+
+                        <h2
+                            className="
+                                text-2xl
+                                font-bold
+                                dark:text-white
+                            "
+                        >
+
+                            {actionType === 'cancel'
+
+                                ? 'Cancel Order'
+
+                                : 'Delete Order'}
+
+                        </h2>
+
+                        <p className="text-zinc-500 mt-2">
+
+                            Are you sure you want to
+
+                            {' '}
+
+                            {actionType}
+
+                            {' '}
+
+                            order #
+
+                            {selectedOrder?.id}
+
+                            ?
+                        </p>
+
+                    </div>
+
+
+                    <div className="flex gap-3">
+
+                        <Button
+                            className="w-full"
+
+                            onClick={() =>
+                                setSelectedOrder(null)
+                            }
+                        >
+
+                            Cancel
+
+                        </Button>
+
+
+                        <Button
+                            className="
+                                w-full
+                                bg-red-600
+                                hover:bg-red-700
+                            "
+
+                            onClick={handleConfirm}
+                        >
+
+                            Confirm
+
+                        </Button>
+
+                    </div>
+
+                </div>
+
+            </Modal>
 
         </div>
     )
