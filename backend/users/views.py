@@ -1,4 +1,6 @@
 from rest_framework import generics
+from rest_framework import viewsets
+
 from rest_framework.permissions import (
     IsAuthenticated,
 )
@@ -12,7 +14,16 @@ from .serializers import (
     UserSerializer,
 )
 
+from .permissions import (
+    IsAdmin,
+)
+
 User = get_user_model()
+
+
+# ==========================================
+# REGISTER
+# ==========================================
 
 class RegisterView(generics.CreateAPIView):
 
@@ -21,6 +32,11 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
     permission_classes = []
+
+
+# ==========================================
+# CURRENT USER
+# ==========================================
 
 class CurrentUserView(generics.RetrieveAPIView):
 
@@ -31,12 +47,24 @@ class CurrentUserView(generics.RetrieveAPIView):
     ]
 
 
-    # ==========================================
-    # GET CURRENT USER
-    # ==========================================
-
     def get_object(self):
 
         return self.request.user
 
 
+# ==========================================
+# USER MANAGEMENT
+# ==========================================
+
+class UserViewSet(viewsets.ModelViewSet):
+
+    queryset = User.objects.all()
+
+    serializer_class = UserSerializer
+
+    permission_classes = [
+
+        IsAuthenticated,
+
+        IsAdmin,
+    ]

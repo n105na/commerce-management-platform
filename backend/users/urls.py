@@ -1,4 +1,7 @@
 from django.urls import path
+from django.urls import include
+
+from rest_framework.routers import DefaultRouter
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -6,8 +9,20 @@ from rest_framework_simplejwt.views import (
 )
 
 from .views import (
+
     RegisterView,
+
     CurrentUserView,
+
+    UserViewSet,
+)
+
+
+router = DefaultRouter()
+
+router.register(
+    'manage',
+    UserViewSet
 )
 
 
@@ -51,5 +66,14 @@ urlpatterns = [
         'me/',
         CurrentUserView.as_view(),
         name='current_user'
+    ),
+
+    # ==========================================
+    # USER MANAGEMENT
+    # ==========================================
+
+    path(
+        '',
+        include(router.urls)
     ),
 ]
