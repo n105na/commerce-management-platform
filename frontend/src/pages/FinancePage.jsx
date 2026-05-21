@@ -1,16 +1,24 @@
 import {
+    useState,
+} from 'react'
+
+import {
     useQuery,
 } from '@tanstack/react-query'
 
 import {
     Wallet,
     TrendingDown,
-    BadgeEuro,
+    Plus,
 } from 'lucide-react'
 
 import Card from '../components/ui/Card'
 
+import Button from '../components/ui/Button'
+
 import PageHeader from '../components/ui/PageHeader'
+
+import ExpenseModal from '../features/finance/ExpenseModal'
 
 import {
     getExpenses,
@@ -20,9 +28,31 @@ import {
 
 export default function FinancePage() {
 
+    /*
+    =====================================
+    STATES
+    =====================================
+    */
+
+    const [
+
+        isExpenseModalOpen,
+
+        setIsExpenseModalOpen,
+
+    ] = useState(false)
+
+
+    /*
+    =====================================
+    EXPENSES
+    =====================================
+    */
+
     const {
 
         data: expensesData,
+
         isLoading: expensesLoading,
 
     } = useQuery({
@@ -33,9 +63,16 @@ export default function FinancePage() {
     })
 
 
+    /*
+    =====================================
+    SALARIES
+    =====================================
+    */
+
     const {
 
         data: salaryData,
+
         isLoading: salaryLoading,
 
     } = useQuery({
@@ -46,8 +83,16 @@ export default function FinancePage() {
     })
 
 
+    /*
+    =====================================
+    LOADING
+    =====================================
+    */
+
     if (
+
         expensesLoading ||
+
         salaryLoading
     ) {
 
@@ -62,31 +107,51 @@ export default function FinancePage() {
     }
 
 
+    /*
+    =====================================
+    DATA
+    =====================================
+    */
+
     const expenses =
         expensesData?.results || []
+
 
     const salaryPayments =
         salaryData?.results || []
 
 
-    const totalExpenses = expenses.reduce(
+    /*
+    =====================================
+    TOTALS
+    =====================================
+    */
 
-        (sum, expense) =>
+    const totalExpenses =
+        expenses.reduce(
 
-            sum + Number(expense.amount),
+            (sum, expense) =>
 
-        0
-    )
+                sum + Number(expense.amount),
+
+            0
+        )
 
 
-    const totalSalaries = salaryPayments.reduce(
+    const totalSalaries =
+        salaryPayments.reduce(
 
-        (sum, payment) =>
+            (sum, payment) =>
 
-            sum + Number(payment.amount),
+                sum + Number(payment.amount),
 
-        0
-    )
+            0
+        )
+
+
+    const totalFinancialOut =
+        totalExpenses +
+        totalSalaries
 
 
     return (
@@ -98,7 +163,30 @@ export default function FinancePage() {
             <PageHeader
                 title="Finance"
 
-                description="Track expenses and employee salary payments"
+                description="Track expenses and salary payments"
+
+                action={
+
+                    <Button
+                        onClick={() =>
+                            setIsExpenseModalOpen(true)
+                        }
+                    >
+
+                        <div className="flex items-center gap-2">
+
+                            <Plus size={16} />
+
+                            <span>
+
+                                Add Expense
+
+                            </span>
+
+                        </div>
+
+                    </Button>
+                }
             />
 
 
@@ -108,7 +196,7 @@ export default function FinancePage() {
                 className="
                     grid
                     grid-cols-1
-                    md:grid-cols-2
+                    md:grid-cols-3
                     gap-6
                 "
             >
@@ -179,7 +267,7 @@ export default function FinancePage() {
 
                             <p className="text-sm text-zinc-500">
 
-                                Total Salaries
+                                Salary Payments
 
                             </p>
 
@@ -224,10 +312,66 @@ export default function FinancePage() {
 
                 </Card>
 
+
+                {/* TOTAL OUT */}
+
+                <Card className="p-6">
+
+                    <div className="flex items-start justify-between">
+
+                        <div>
+
+                            <p className="text-sm text-zinc-500">
+
+                                Total Financial Out
+
+                            </p>
+
+                            <h2
+                                className="
+                                    mt-4
+                                    text-4xl
+                                    font-bold
+                                    tracking-tight
+                                    text-orange-600
+                                "
+                            >
+
+                                €{totalFinancialOut}
+
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            className="
+                                w-12
+                                h-12
+                                rounded-2xl
+                                bg-orange-100
+                                dark:bg-orange-900/30
+                                flex
+                                items-center
+                                justify-center
+                            "
+                        >
+
+                            <Wallet
+                                size={22}
+                                className="text-orange-500"
+                            />
+
+                        </div>
+
+                    </div>
+
+                </Card>
+
             </div>
 
 
-            {/* EXPENSE TABLE */}
+            {/* EXPENSES TABLE */}
 
             <Card className="overflow-hidden">
 
@@ -292,6 +436,7 @@ export default function FinancePage() {
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -405,6 +550,7 @@ export default function FinancePage() {
 
                         </thead>
 
+
                         <tbody>
 
                             {salaryPayments.map((payment) => (
@@ -449,6 +595,17 @@ export default function FinancePage() {
                 </div>
 
             </Card>
+
+
+            {/* MODALS */}
+
+            <ExpenseModal
+                isOpen={isExpenseModalOpen}
+
+                onClose={() =>
+                    setIsExpenseModalOpen(false)
+                }
+            />
 
         </div>
     )
