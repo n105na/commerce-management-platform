@@ -9,6 +9,7 @@ import {
 import {
     Search,
     Boxes,
+    PackagePlus,
 } from 'lucide-react'
 
 import {
@@ -21,13 +22,48 @@ import Card from '../components/ui/Card'
 
 import Input from '../components/ui/Input'
 
+import Button from '../components/ui/Button'
+
 import PageHeader from '../components/ui/PageHeader'
+
+import InventoryMovementModal from '../features/inventory/InventoryMovementModal'
 
 
 export default function InventoryPage() {
 
-    const [search, setSearch] = useState('')
+    /*
+    =====================================
+    STATES
+    =====================================
+    */
 
+    const [search, setSearch] =
+        useState('')
+
+
+    const [
+
+        selectedItem,
+
+        setSelectedItem,
+
+    ] = useState(null)
+
+
+    const [
+
+        isMovementModalOpen,
+
+        setIsMovementModalOpen,
+
+    ] = useState(false)
+
+
+    /*
+    =====================================
+    QUERY
+    =====================================
+    */
 
     const {
 
@@ -55,19 +91,27 @@ export default function InventoryPage() {
     }
 
 
-    const items = data?.results || []
+    /*
+    =====================================
+    DATA
+    =====================================
+    */
+
+    const items =
+        data?.results || []
 
 
-    const filteredItems = items.filter(
+    const filteredItems =
+        items.filter(
 
-        (item) =>
+            (item) =>
 
-            item.product?.name
-                ?.toLowerCase()
-                .includes(
-                    search.toLowerCase()
-                )
-    )
+                item.product?.name
+                    ?.toLowerCase()
+                    .includes(
+                        search.toLowerCase()
+                    )
+        )
 
 
     return (
@@ -95,7 +139,9 @@ export default function InventoryPage() {
                     value={search}
 
                     onChange={(e) =>
-                        setSearch(e.target.value)
+                        setSearch(
+                            e.target.value
+                        )
                     }
                 />
 
@@ -105,6 +151,8 @@ export default function InventoryPage() {
             {/* TABLE */}
 
             <Card className="overflow-hidden">
+
+                {/* TOP */}
 
                 <div
                     className="
@@ -133,7 +181,10 @@ export default function InventoryPage() {
 
                         <Boxes
                             size={22}
-                            className="text-zinc-700 dark:text-zinc-300"
+                            className="
+                                text-zinc-700
+                                dark:text-zinc-300
+                            "
                         />
 
                     </div>
@@ -181,27 +232,63 @@ export default function InventoryPage() {
 
                             <tr>
 
-                                <th className="text-left p-4 dark:text-white">
+                                <th
+                                    className="
+                                        text-left
+                                        p-4
+                                        dark:text-white
+                                    "
+                                >
 
                                     Product
 
                                 </th>
 
-                                <th className="text-left p-4 dark:text-white">
+                                <th
+                                    className="
+                                        text-left
+                                        p-4
+                                        dark:text-white
+                                    "
+                                >
 
                                     Quantity
 
                                 </th>
 
-                                <th className="text-left p-4 dark:text-white">
+                                <th
+                                    className="
+                                        text-left
+                                        p-4
+                                        dark:text-white
+                                    "
+                                >
 
                                     Minimum
 
                                 </th>
 
-                                <th className="text-left p-4 dark:text-white">
+                                <th
+                                    className="
+                                        text-left
+                                        p-4
+                                        dark:text-white
+                                    "
+                                >
 
                                     Status
+
+                                </th>
+
+                                <th
+                                    className="
+                                        text-left
+                                        p-4
+                                        dark:text-white
+                                    "
+                                >
+
+                                    Actions
 
                                 </th>
 
@@ -209,6 +296,8 @@ export default function InventoryPage() {
 
                         </thead>
 
+
+                        {/* BODY */}
 
                         <tbody>
 
@@ -227,29 +316,80 @@ export default function InventoryPage() {
                                     "
                                 >
 
-                                    <td className="p-4 font-medium dark:text-white">
+                                    {/* PRODUCT */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            font-medium
+                                            dark:text-white
+                                        "
+                                    >
 
                                         {item.product?.name}
 
                                     </td>
 
-                                    <td className="p-4 text-zinc-600 dark:text-zinc-300">
+
+                                    {/* QUANTITY */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-zinc-600
+                                            dark:text-zinc-300
+                                        "
+                                    >
 
                                         {item.quantity}
 
                                     </td>
 
-                                    <td className="p-4 text-zinc-600 dark:text-zinc-300">
+
+                                    {/* MINIMUM */}
+
+                                    <td
+                                        className="
+                                            p-4
+                                            text-zinc-600
+                                            dark:text-zinc-300
+                                        "
+                                    >
 
                                         {item.minimum_quantity}
 
                                     </td>
 
+
+                                    {/* STATUS */}
+
                                     <td className="p-4">
 
                                         <StockStatusBadge
-                                            status={item.stock_status}
+                                            status={
+                                                item.stock_status
+                                            }
                                         />
+
+                                    </td>
+
+
+                                    {/* ACTIONS */}
+
+                                    <td className="p-4">
+
+                                        <Button
+                                            onClick={() => {
+
+                                                setSelectedItem(item)
+
+                                                setIsMovementModalOpen(true)
+                                            }}
+                                        >
+
+                                            <PackagePlus size={16} />
+
+                                        </Button>
 
                                     </td>
 
@@ -263,6 +403,22 @@ export default function InventoryPage() {
                 </div>
 
             </Card>
+
+
+            {/* MOVEMENT MODAL */}
+
+            <InventoryMovementModal
+                isOpen={isMovementModalOpen}
+
+                onClose={() => {
+
+                    setIsMovementModalOpen(false)
+
+                    setSelectedItem(null)
+                }}
+
+                item={selectedItem}
+            />
 
         </div>
     )
