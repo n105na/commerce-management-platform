@@ -59,7 +59,26 @@ export default function LoginPage() {
                 formData.password
             )
 
-            navigate('/')
+            const currentUser =
+    JSON.parse(
+
+        localStorage.getItem(
+            'current_user'
+        )
+    )
+
+
+if (
+    currentUser?.role ===
+    'CUSTOMER'
+) {
+
+    navigate('/customer')
+
+} else {
+
+    navigate('/')
+}
 
         } catch {
 

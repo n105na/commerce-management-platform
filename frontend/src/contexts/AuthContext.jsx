@@ -80,6 +80,14 @@ export function AuthProvider({ children }) {
             )
 
             setUser(response.data)
+            localStorage.setItem(
+
+    'current_user',
+
+    JSON.stringify(
+        response.data
+    )
+)
 
         } catch {
 

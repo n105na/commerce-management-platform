@@ -1,86 +1,239 @@
 import {
     createBrowserRouter,
 } from 'react-router-dom'
-import CategoriesPage from '../pages/CategoriesPage'
+
 import AppLayout from '../components/layouts/AppLayout'
 
 import ProtectedRoute from './ProtectedRoute'
 
-import DashboardPage from '../pages/DashboardPage'
-import ProductsPage from '../pages/ProductsPage'
-import InventoryPage from '../pages/InventoryPage'
-import SalesPage from '../pages/SalesPage'
-import CustomersPage from '../pages/CustomersPage'
-import FinancePage from '../pages/FinancePage'
-import ReportsPage from '../pages/ReportsPage'
-import SettingsPage from '../pages/SettingsPage'
+import RoleProtectedRoute from './RoleProtectedRoute'
+
+
+/*
+=====================================
+PAGES
+=====================================
+*/
+
 import LoginPage from '../pages/LoginPage'
 
+import DashboardPage from '../pages/DashboardPage'
 
-export const router = createBrowserRouter([
+import ProductsPage from '../pages/ProductsPage'
 
-    {
-        path: '/login',
+import CategoriesPage from '../pages/CategoriesPage'
 
-        element: <LoginPage />,
-    },
+import InventoryPage from '../pages/InventoryPage'
 
-    {
-        path: '/',
+import SalesPage from '../pages/SalesPage'
 
-        element: (
+import CustomersPage from '../pages/CustomersPage'
 
-            <ProtectedRoute>
+import FinancePage from '../pages/FinancePage'
 
-                <AppLayout />
+import ReportsPage from '../pages/ReportsPage'
 
-            </ProtectedRoute>
-        ),
+import SettingsPage from '../pages/SettingsPage'
 
-        children: [
+import CustomerHomePage from '../pages/customer/CustomerHomePage'
 
-            {
-                index: true,
-                element: <DashboardPage />,
-            },
+import UsersPage from '../pages/UsersPage'
 
-            {
-                path: 'products',
-                element: <ProductsPage />,
-            },
+export const router =
+    createBrowserRouter([
 
-            {
-                path: 'inventory',
-                element: <InventoryPage />,
-            },
+        /*
+        =====================================
+        LOGIN
+        =====================================
+        */
 
-            {
-                path: 'sales',
-                element: <SalesPage />,
-            },
+        {
+            path: '/login',
 
-            {
-                path: 'customers',
-                element: <CustomersPage />,
-            },
+            element: <LoginPage />,
+        },
 
-            {
-                path: 'finance',
-                element: <FinancePage />,
-            },
 
-            {
-                path: 'reports',
-                element: <ReportsPage />,
-            },
-            {
-             path: '/categories',
-             element: <CategoriesPage />,
-            },
-            {
-                path: 'settings',
-                element: <SettingsPage />,
-            },
-        ],
-    },
-])
+        /*
+        =====================================
+        CUSTOMER PORTAL
+        =====================================
+        */
+
+        {
+            path: '/customer',
+
+            element: (
+
+                <RoleProtectedRoute
+
+                    allowedRoles={[
+                        'CUSTOMER'
+                    ]}
+                >
+
+                    <CustomerHomePage />
+
+                </RoleProtectedRoute>
+            ),
+        },
+
+
+        /*
+        =====================================
+        ADMIN / STAFF DASHBOARD
+        =====================================
+        */
+
+        {
+            path: '/',
+
+            element: (
+
+                <ProtectedRoute>
+
+                    <RoleProtectedRoute
+
+                        allowedRoles={[
+
+                            'ADMIN',
+
+                            'MANAGER',
+
+                            'WORKER',
+                        ]}
+                    >
+
+                        <AppLayout />
+
+                    </RoleProtectedRoute>
+
+                </ProtectedRoute>
+            ),
+
+            children: [
+
+                /*
+                =====================================
+                DASHBOARD
+                =====================================
+                */
+
+                {
+                    index: true,
+
+                    element: <DashboardPage />,
+                },
+
+
+                /*
+                =====================================
+                PRODUCTS
+                =====================================
+                */
+
+                {
+                    path: 'products',
+
+                    element: <ProductsPage />,
+                },
+
+
+                /*
+                =====================================
+                CATEGORIES
+                =====================================
+                */
+
+                {
+                    path: 'categories',
+
+                    element: <CategoriesPage />,
+                },
+
+
+                /*
+                =====================================
+                INVENTORY
+                =====================================
+                */
+
+                {
+                    path: 'inventory',
+
+                    element: <InventoryPage />,
+                },
+
+
+                /*
+                =====================================
+                SALES
+                =====================================
+                */
+
+                {
+                    path: 'sales',
+
+                    element: <SalesPage />,
+                },
+
+
+                /*
+                =====================================
+                CUSTOMERS
+                =====================================
+                */
+
+                {
+                    path: 'customers',
+
+                    element: <CustomersPage />,
+                },
+
+
+                /*
+                =====================================
+                FINANCE
+                =====================================
+                */
+
+                {
+                    path: 'finance',
+
+                    element: <FinancePage />,
+                },
+
+
+                /*
+                =====================================
+                REPORTS
+                =====================================
+                */
+
+                {
+                    path: 'reports',
+
+                    element: <ReportsPage />,
+                },
+
+
+                /*
+                =====================================
+                SETTINGS
+                =====================================
+                */
+
+                {
+                    path: 'settings',
+
+                    element: <SettingsPage />,
+                },
+                {
+    path: 'users',
+
+    element: <UsersPage />,
+},
+            ],
+        },
+    ])

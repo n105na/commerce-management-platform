@@ -8,6 +8,7 @@ import {
     BarChart3,
     Settings,
     FolderKanban,
+    Shield,
     X,
 } from 'lucide-react'
 
@@ -27,6 +28,10 @@ import {
     useSettings,
 } from '../../contexts/SettingsContext'
 
+import {
+    useAuth,
+} from '../../contexts/AuthContext'
+
 
 export default function Sidebar() {
 
@@ -37,6 +42,10 @@ export default function Sidebar() {
     } = useSettings()
 
     const {
+        user,
+    } = useAuth()
+
+    const {
 
         isOpen,
 
@@ -45,62 +54,142 @@ export default function Sidebar() {
     } = useSidebar()
 
 
+    /*
+    =====================================
+    LINKS
+    =====================================
+    */
+
     const links = [
 
         {
             label: t('dashboard'),
             icon: LayoutDashboard,
             path: '/',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+                'WORKER',
+            ],
         },
 
         {
             label: t('products'),
             icon: Package,
             path: '/products',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+                'WORKER',
+            ],
         },
 
         {
             label: t('categories'),
             icon: FolderKanban,
             path: '/categories',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+            ],
         },
 
         {
             label: t('inventory'),
             icon: Boxes,
             path: '/inventory',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+                'WORKER',
+            ],
         },
 
         {
             label: t('sales'),
             icon: ShoppingCart,
             path: '/sales',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+                'WORKER',
+            ],
         },
 
         {
             label: t('customers'),
             icon: Users,
             path: '/customers',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+                'WORKER',
+            ],
+        },
+
+        {
+            label: 'Users',
+            icon: Shield,
+            path: '/users',
+
+            roles: [
+                'ADMIN',
+            ],
         },
 
         {
             label: t('finance'),
             icon: Wallet,
             path: '/finance',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+            ],
         },
 
         {
             label: t('reports'),
             icon: BarChart3,
             path: '/reports',
+
+            roles: [
+                'ADMIN',
+                'MANAGER',
+            ],
         },
 
         {
             label: t('settings'),
             icon: Settings,
             path: '/settings',
+
+            roles: [
+                'ADMIN',
+            ],
         },
     ]
+
+
+    /*
+    =====================================
+    FILTER BY ROLE
+    =====================================
+    */
+
+    const filteredLinks =
+        links.filter((link) =>
+
+            link.roles.includes(
+                user?.role
+            )
+        )
 
 
     return (
@@ -147,7 +236,9 @@ export default function Sidebar() {
                     duration-300
 
                     ${isOpen
+
                         ? 'translate-x-0'
+
                         : '-translate-x-full lg:translate-x-0'
                     }
                 `}
@@ -323,7 +414,7 @@ export default function Sidebar() {
 
                 <nav className="space-y-2">
 
-                    {links.map((link) => {
+                    {filteredLinks.map((link) => {
 
                         const Icon = link.icon
 
