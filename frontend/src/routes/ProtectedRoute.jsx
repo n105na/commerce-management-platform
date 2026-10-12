@@ -11,6 +11,8 @@ export default function ProtectedRoute({
 
     children,
 
+    allowedRoles = null,
+
 }) {
 
     const {
@@ -19,20 +21,56 @@ export default function ProtectedRoute({
     } = useAuth()
 
 
+    /*
+    =====================================
+    LOADING
+    =====================================
+    */
+
     if (loading) {
 
         return (
+
             <div className="p-10">
+
                 Loading...
+
             </div>
         )
     }
 
 
+    /*
+    =====================================
+    NOT AUTHENTICATED
+    =====================================
+    */
+
     if (!user) {
 
         return (
             <Navigate to="/login" />
+        )
+    }
+
+
+    /*
+    =====================================
+    ROLE PROTECTION
+    =====================================
+    */
+
+    if (
+
+        allowedRoles &&
+
+        !allowedRoles.includes(
+            user.role
+        )
+    ) {
+
+        return (
+            <Navigate to="/" />
         )
     }
 

@@ -1,6 +1,10 @@
 from rest_framework import serializers
+
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
+
+from django.contrib.auth.password_validation import (
+    validate_password
+)
 
 from .models import (
     EmployeeProfile,
@@ -16,10 +20,22 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
 
+    password = serializers.CharField(
+        write_only=True,
+        required=False
+    )
+
+    password_confirm = serializers.CharField(
+        write_only=True,
+        required=False
+    )
+
     class Meta:
+
         model = User
 
         fields = [
+
             'id',
 
             'username',
@@ -29,7 +45,82 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
 
             'phone_number',
+
+            'is_active',
+
+            'password',
+
+            'password_confirm',
         ]
+
+
+    # ==========================================
+    # VALIDATE PASSWORDS
+    # ==========================================
+
+    def validate(self, attrs):
+
+        password = attrs.get('password')
+
+        password_confirm = attrs.get(
+            'password_confirm'
+        )
+
+
+        if password or password_confirm:
+
+            if password != password_confirm:
+
+                raise serializers.ValidationError({
+
+                    'password':
+
+                    'Passwords do not match.'
+                })
+
+            validate_password(password)
+
+        return attrs
+
+
+    # ==========================================
+    # UPDATE USER
+    # ==========================================
+
+    def update(self, instance, validated_data):
+
+        password = validated_data.pop(
+            'password',
+            None
+        )
+
+        validated_data.pop(
+            'password_confirm',
+            None
+        )
+
+
+        for attr, value in validated_data.items():
+
+            setattr(
+                instance,
+                attr,
+                value
+            )
+
+
+        # SAFE PASSWORD HASHING
+
+        if password:
+
+            instance.set_password(
+                password
+            )
+
+
+        instance.save()
+
+        return instance
 
 
 # ==========================================
@@ -49,9 +140,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+
         model = User
 
         fields = [
+
             'username',
 
             'email',
@@ -73,16 +166,17 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
 
         if (
+
             attrs['password'] !=
             attrs['password_confirm']
         ):
 
-            raise serializers.ValidationError(
-                {
-                    'password':
-                    'Passwords do not match.'
-                }
-            )
+            raise serializers.ValidationError({
+
+                'password':
+
+                'Passwords do not match.'
+            })
 
         return attrs
 
@@ -98,6 +192,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         user = User.objects.create_user(
+
             username=validated_data['username'],
 
             email=validated_data['email'],
@@ -107,6 +202,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data['role'],
 
             phone_number=validated_data.get(
+
                 'phone_number',
                 ''
             ),
@@ -128,6 +224,7 @@ class EmployeeProfileSerializer(
     )
 
     class Meta:
+
         model = EmployeeProfile
 
         fields = '__all__'
@@ -146,6 +243,7 @@ class CustomerProfileSerializer(
     )
 
     class Meta:
+
         model = CustomerProfile
 
         fields = '__all__'

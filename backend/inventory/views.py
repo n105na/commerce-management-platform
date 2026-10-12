@@ -47,8 +47,56 @@ class StockMovementViewSet(viewsets.ModelViewSet):
     # AUTO SET USER
     # ==========================================
 
-    def perform_create(self, serializer):
+    def perform_create(self,serializer):
 
-        serializer.save(
+        movement = serializer.save(
+
             created_by=self.request.user
         )
+
+
+        inventory_item, _ = (
+            InventoryItem.objects.get_or_create(
+
+                product=movement.product
+            )
+        )
+
+
+    # ======================================
+    # STOCK IN
+    # ======================================
+
+        if movement.movement_type == 'IN':
+    
+            inventory_item.quantity += (
+                movement.quantity
+            )
+    
+    
+        # ======================================
+        # STOCK OUT
+        # ======================================
+    
+        elif movement.movement_type == 'OUT':
+    
+            inventory_item.quantity -= (
+                movement.quantity
+            )
+    
+    
+        # ======================================
+        # ADJUSTMENT
+        # ======================================
+    
+        elif (
+            movement.movement_type ==
+            'ADJUSTMENT'
+        ):
+    
+            inventory_item.quantity = (
+                movement.quantity
+            )
+    
+    
+        inventory_item.save()

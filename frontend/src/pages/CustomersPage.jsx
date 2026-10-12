@@ -35,9 +35,22 @@ import {
 
 } from '../services/customerService'
 
+import {
+    useAuth,
+} from '../contexts/AuthContext'
+
+import {
+    canManageCustomers,
+} from '../utils/permissions'
 
 export default function CustomersPage() {
+    const {
+    user,
+} = useAuth()
 
+
+const canManage =
+    canManageCustomers(user)
     const queryClient =
         useQueryClient()
 
@@ -162,6 +175,7 @@ export default function CustomersPage() {
                 description="Manage buyers and track unpaid balances"
 
                 action={
+                    canManage && (
 
                     <Button
                         onClick={() => {
@@ -175,6 +189,7 @@ export default function CustomersPage() {
                         Add Customer
 
                     </Button>
+                    )
                 }
             />
 

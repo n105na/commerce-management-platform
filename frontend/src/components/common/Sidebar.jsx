@@ -10,6 +10,7 @@ import {
     FolderKanban,
     Shield,
     X,
+    UserCircle,
 } from 'lucide-react'
 
 import {
@@ -62,9 +63,17 @@ export default function Sidebar() {
 
     const links = [
 
+        /*
+        =====================================
+        DASHBOARD
+        =====================================
+        */
+
         {
             label: t('dashboard'),
+
             icon: LayoutDashboard,
+
             path: '/',
 
             roles: [
@@ -74,9 +83,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        PRODUCTS
+        =====================================
+        */
+
         {
             label: t('products'),
+
             icon: Package,
+
             path: '/products',
 
             roles: [
@@ -86,9 +104,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        CATEGORIES
+        =====================================
+        */
+
         {
             label: t('categories'),
+
             icon: FolderKanban,
+
             path: '/categories',
 
             roles: [
@@ -97,9 +124,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        INVENTORY
+        =====================================
+        */
+
         {
             label: t('inventory'),
+
             icon: Boxes,
+
             path: '/inventory',
 
             roles: [
@@ -109,9 +145,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        SALES
+        =====================================
+        */
+
         {
             label: t('sales'),
+
             icon: ShoppingCart,
+
             path: '/sales',
 
             roles: [
@@ -121,9 +166,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        CUSTOMERS
+        =====================================
+        */
+
         {
             label: t('customers'),
+
             icon: Users,
+
             path: '/customers',
 
             roles: [
@@ -133,9 +187,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        USER MANAGEMENT
+        =====================================
+        */
+
         {
             label: 'Users',
+
             icon: Shield,
+
             path: '/users',
 
             roles: [
@@ -143,9 +206,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        FINANCE
+        =====================================
+        */
+
         {
             label: t('finance'),
+
             icon: Wallet,
+
             path: '/finance',
 
             roles: [
@@ -154,9 +226,18 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        REPORTS
+        =====================================
+        */
+
         {
             label: t('reports'),
+
             icon: BarChart3,
+
             path: '/reports',
 
             roles: [
@@ -165,13 +246,41 @@ export default function Sidebar() {
             ],
         },
 
+
+        /*
+        =====================================
+        SETTINGS
+        =====================================
+        */
+
         {
             label: t('settings'),
+
             icon: Settings,
+
             path: '/settings',
 
             roles: [
                 'ADMIN',
+            ],
+        },
+
+
+        /*
+        =====================================
+        CUSTOMER PORTAL
+        =====================================
+        */
+
+        {
+            label: 'My Account',
+
+            icon: UserCircle,
+
+            path: '/customer',
+
+            roles: [
+                'CUSTOMER',
             ],
         },
     ]
@@ -244,7 +353,7 @@ export default function Sidebar() {
                 `}
             >
 
-                {/* MOBILE CLOSE */}
+                {/* MOBILE HEADER */}
 
                 <div className="flex items-center justify-between lg:hidden mb-6">
 
@@ -334,7 +443,7 @@ export default function Sidebar() {
                 </div>
 
 
-                {/* DESKTOP LOGO */}
+                {/* DESKTOP HEADER */}
 
                 <div className="hidden lg:flex items-center gap-4 mb-10">
 
@@ -377,7 +486,7 @@ export default function Sidebar() {
                                 "
                             >
 
-                                {settings?.store_name?.[0] || 'C'}
+                                    {settings?.store_name?.[0] || 'C'}
 
                             </span>
                         )}
@@ -410,7 +519,7 @@ export default function Sidebar() {
                 </div>
 
 
-                {/* NAV */}
+                {/* NAVIGATION */}
 
                 <nav className="space-y-2">
 
@@ -458,6 +567,7 @@ export default function Sidebar() {
                             </NavLink>
                         )
                     })}
+
                 </nav>
 
             </aside>
